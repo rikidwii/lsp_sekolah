@@ -22,6 +22,5 @@
         </div>
 
         <a href="{{ route('login') }}" class="mt-6 block w-full py-3 rounded-lg bg-emerald-800 text-white text-sm font-medium">Login Sekarang →</a>
-        <a href="{{ route('home') }}" class="mt-3 block w-full py-3 rounded-lg border border-slate-200 text-sm font-medium">Kembali ke Beranda</a>
-    </div>
+        <a href="{{ route('guest.index') }}" class="mt-3 block w-full py-3 rounded-lg border border-slate-200 text-sm font-medium">Kembali ke Beranda</a>
 </x-layouts.guest>

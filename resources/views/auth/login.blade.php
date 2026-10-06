@@ -14,7 +14,7 @@
     </x-slot:leftPanel>
 
     <div class="flex items-center justify-between mb-6 text-sm">
-        <a href="{{ route('home') }}" class="text-slate-400 hover:text-slate-600">← Kembali ke Beranda</a>
+        <a href="{{ route('guest.index') }}" class="text-slate-400 hover:text-slate-600">← Kembali ke Beranda</a>
     </div>
 
     <h1 class="text-2xl font-bold text-slate-900">Halo, Selamat Datang!</h1>
@@ -35,14 +35,19 @@
                    class="w-full rounded-lg border border-slate-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
         </div>
 
-        <div>
-            <div class="flex justify-between mb-1">
-                <label class="block text-xs font-semibold text-slate-500">KATA SANDI *</label>
-                <a href="#" class="text-xs text-emerald-700">Lupa kata sandi?</a>
-            </div>
-            <input type="password" name="password" required
-                   class="w-full rounded-lg border border-slate-200 px-4 py-3 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
+      <div>
+         <div class="flex justify-between mb-1">
+        <label class="block text-xs font-semibold text-slate-500">KATA SANDI *</label>
+        <a href="#" class="text-xs text-emerald-700">Lupa kata sandi?</a>
         </div>
+            <div class="relative">
+            <input type="password" name="password" id="password_login" required
+               class="w-full rounded-lg border border-slate-200 px-4 py-3 pr-11 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500">
+            <button type="button" class="toggle-password absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600" data-target="password_login">
+            <x-icon name="eye" />
+        </button>
+        </div>
+    </div>
 
         <label class="flex items-center gap-2 text-sm text-slate-600">
             <input type="checkbox" name="remember" class="rounded border-slate-300 text-emerald-700">

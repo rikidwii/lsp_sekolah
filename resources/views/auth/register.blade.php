@@ -56,7 +56,13 @@
 
         <div>
             <label class="block text-xs font-semibold text-slate-500 mb-1">KATA SANDI *</label>
-            <input type="password" name="password" class="w-full rounded-lg border border-slate-200 px-4 py-3 text-sm">
+            <div class="relative">
+                <input type="password" name="password" id="password_asesi"
+                       class="w-full rounded-lg border border-slate-200 px-4 py-3 pr-11 text-sm">
+                <button type="button" class="toggle-password absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600" data-target="password_asesi">
+                    <x-icon name="eye" />
+                </button>
+            </div>
             <p class="text-xs text-slate-400 mt-1">Minimal 8 karakter, kombinasi huruf dan angka.</p>
             @error('password') <p class="text-rose-500 text-xs mt-1">{{ $message }}</p> @enderror
         </div>
@@ -123,7 +129,13 @@
 
         <div>
             <label class="block text-xs font-semibold text-slate-500 mb-1">KATA SANDI *</label>
-            <input type="password" name="password" class="w-full rounded-lg border border-slate-200 px-4 py-3 text-sm">
+            <div class="relative">
+                <input type="password" name="password" id="password_asesor"
+                       class="w-full rounded-lg border border-slate-200 px-4 py-3 pr-11 text-sm">
+                <button type="button" class="toggle-password absolute right-3 top-1/2 -translate-y-1/2 text-slate-400 hover:text-slate-600" data-target="password_asesor">
+                    <x-icon name="eye" />
+                </button>
+            </div>
             @error('password') <p class="text-rose-500 text-xs mt-1">{{ $message }}</p> @enderror
         </div>
 

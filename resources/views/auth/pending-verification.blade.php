@@ -23,7 +23,7 @@
         </div>
 
         <div class="mt-6 flex gap-3">
-            <a href="{{ route('home') }}" class="flex-1 py-3 rounded-lg border border-slate-200 text-sm font-medium">Kembali ke Beranda</a>
+            <a href="{{ route('guest.index') }}" class="flex-1 py-3 rounded-lg border border-slate-200 text-sm font-medium">Kembali ke Beranda</a>
             <a href="mailto:admin@lsp-sekolah.sch.id" class="flex-1 py-3 rounded-lg bg-emerald-800 text-white text-sm font-medium">Hubungi Helpdesk</a>
         </div>
     </div>
