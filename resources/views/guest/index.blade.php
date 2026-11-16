@@ -69,18 +69,18 @@
                     <div class="flex items-center gap-4 -mt-2 sm:-mt-4 mb-6 sm:mb-20 group cursor-default">
                         <div class="flex items-center -space-x-3.5 select-none">
                             <img 
-                                src="{{ asset('images/hero/avatar-1.jpg') }}" 
-                                alt="Avatar 1" 
+                                src="{{ asset('images/hero/avatar-1.jpg') }}"
+                                alt="Avatar 1"
                                 class="h-11 w-11 sm:h-12 sm:w-12 rounded-full object-cover ring-2 ring-white shadow-xs transition-transform duration-300 hover:scale-110 hover:z-20"
                             />
                             <img 
-                                src="{{ asset('images/hero/avatar-2.jpg') }}" 
-                                alt="Avatar 2" 
+                                src="{{ asset('images/hero/avatar-2.jpg') }}"
+                                alt="Avatar 2"
                                 class="h-11 w-11 sm:h-12 sm:w-12 rounded-full object-cover ring-2 ring-white shadow-xs transition-transform duration-300 hover:scale-110 hover:z-20"
                             />
-                            <img 
-                                src="{{ asset('images/hero/avatar-3.jpg') }}" 
-                                alt="Avatar 3" 
+                            <img
+                                src="{{ asset('images/hero/avatar-3.jpg') }}"
+                                alt="Avatar 3"
                                 class="h-11 w-11 sm:h-12 sm:w-12 rounded-full object-cover ring-2 ring-white shadow-xs transition-transform duration-300 hover:scale-110 hover:z-20"
                             />
                         </div>
@@ -150,8 +150,8 @@
                         <!-- Main Background Card Image -->
                         <div class="relative rounded-[28px] overflow-hidden shadow-lg bg-slate-200 aspect-[4/4.1] group">
                             <img 
-                                src="{{ asset('images/hero/hero-main-bg.jpg') }}" 
-                                alt="Asesmen Kompetensi" 
+                                src="{{ asset('images/hero/hero-main-bg.jpg') }}"
+                                alt="Asesmen Kompetensi"
                                 class="w-full h-full object-cover transition-transform duration-700 group-hover:scale-105"
                             />
                             
@@ -201,8 +201,8 @@
                         <div class="bg-white rounded-2xl p-3 shadow-[0_14px_34px_rgba(15,23,42,0.1)] border border-slate-100 absolute top-1/2 -translate-y-1/2 right-5 sm:right-8 z-10 w-[210px] sm:w-[235px] animate-float-delayed transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:-translate-y-[calc(50%+4px)]">
                             <div class="rounded-xl overflow-hidden bg-slate-100 aspect-[4/3.6] mb-2.5">
                                 <img 
-                                    src="{{ asset('images/hero/eko-prosojo.jpg') }}" 
-                                    alt="Prof. Dr. Eko Prosojo" 
+                                    src="{{ asset('images/hero/eko-prosojo.jpg') }}"
+                                    alt="Prof. Dr. Eko Prosojo"
                                     class="w-full h-full object-cover object-top transition-transform duration-500 hover:scale-110"
                                 />
                             </div>
@@ -217,8 +217,8 @@
                         <!-- Floating Card 3: Bottom Left Pill (Prof. Saiful Mujani) with Hover -->
                         <div class="inline-flex items-center gap-2.5 bg-white rounded-full pl-1.5 pr-4 py-1.5 shadow-[0_10px_25px_rgba(15,23,42,0.1)] border border-slate-100 absolute bottom-7 left-4 sm:left-8 z-10 transition-all duration-300 hover:scale-105 hover:shadow-lg cursor-pointer">
                             <img 
-                                src="{{ asset('images/hero/saiful-mujani.jpg') }}" 
-                                alt="Prof. Saiful Mujani" 
+                                src="{{ asset('images/hero/saiful-mujani.jpg') }}"
+                                alt="Prof. Saiful Mujani"
                                 class="w-8 h-8 rounded-full object-cover shrink-0"
                             />
                             <span class="w-2 h-2 rounded-full bg-[#199e84] shrink-0 animate-pulse"></span>
