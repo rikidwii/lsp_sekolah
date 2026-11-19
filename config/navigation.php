@@ -19,10 +19,35 @@ return [
     ],
 
     'asesi' => [
-        ['label' => 'Dashboard', 'route' => 'asesi.dashboard', 'icon' => 'grid'],
-        ['label' => 'Daftar Skema', 'route' => 'asesi.skema.index', 'icon' => 'clipboard', 'dynamic_badge' => 'total_skema'],
-        ['label' => 'Jadwal Asesmen', 'route' => 'placeholder', 'params' => ['title' => 'Jadwal Asesmen'], 'icon' => 'calendar', 'dot' => true],
-        ['label' => 'Hasil & Kelulusan', 'route' => 'placeholder', 'params' => ['title' => 'Hasil & Kelulusan'], 'icon' => 'chart'],
-        ['label' => 'Sertifikat Saya', 'route' => 'placeholder', 'params' => ['title' => 'Sertifikat Saya'], 'icon' => 'certificate'],
+    [
+        'label' => 'Dashboard',
+        'route' => 'asesi.dashboard',
+        'icon' => 'grid',
     ],
+    [
+        'label' => 'Daftar Skema',
+        'route' => 'asesi.skema.index',
+        'icon' => 'clipboard',
+        'badge' => '3 Skema',
+    ],
+    [
+        'label' => 'Jadwal Asesmen',
+        'route' => 'placeholder',
+        'params' => ['title' => 'Jadwal Asesmen'],
+        'icon' => 'calendar',
+        'dot' => true,
+    ],
+    [
+        'label' => 'Hasil & Kelulusan',
+        'route' => 'placeholder',
+        'params' => ['title' => 'Hasil & Kelulusan'],
+        'icon' => 'chart',
+    ],
+    [
+        'label' => 'Sertifikat Saya',
+        'route' => 'placeholder',
+        'params' => ['title' => 'Sertifikat Saya'],
+        'icon' => 'certificate',
+    ],
+],
 ];

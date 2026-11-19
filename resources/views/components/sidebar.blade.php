@@ -12,9 +12,9 @@
 @endphp
 
 <aside id="app-sidebar" class="fixed inset-y-0 left-0 z-40 w-72 bg-white border-r border-slate-100 -translate-x-full lg:translate-x-0 transition-transform duration-200 flex flex-col">
-    <div class="px-5 py-6 flex items-center gap-3 border-b border-slate-100">
+   <div class="px-5 py-5 flex items-center gap-3 border-b border-slate-100">
         <div class="w-11 h-11 rounded-xl bg-emerald-700 flex items-center justify-center text-white">
-            <x-icon name="certificate" class="w-6 h-6" />
+           <x-icon name="graduation" class="w-6 h-6" />
         </div>
         <div>
             <p class="font-semibold text-slate-800 leading-tight">Lembaga Sertifikasi</p>
@@ -24,7 +24,7 @@
         </div>
     </div>
 
-    <nav class="flex-1 overflow-y-auto px-4 py-5 space-y-1">
+   <nav class="flex-1 overflow-y-auto px-4 py-5 space-y-1">
         <p class="px-2 pb-2 text-xs font-semibold text-slate-400 tracking-wide">NAVIGASI UTAMA</p>
 
         @foreach ($items as $item)
