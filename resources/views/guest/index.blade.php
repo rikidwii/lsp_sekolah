@@ -124,6 +124,7 @@
         padding: 4px 10px 4px 0; opacity: 0; visibility: hidden; transition: opacity .2s, visibility 0s .2s;
     }
     #cara-kerja .is-active .ck-detail { opacity: 1; visibility: visible; transition: opacity .45s .3s, visibility 0s .3s; }
+    #cara-kerja .ck-detail p { font-size: clamp(14px, calc(var(--dw) * .0555), 23px); }
 
     /* Animasi muncul saat section masuk layar (aktif hanya jika JS jalan: class ck-ready) */
     #cara-kerja .ck-reveal { --x: 0px; --y: 28px; transition: opacity .9s var(--ease) var(--d, 0s), transform .9s var(--ease) var(--d, 0s); }
@@ -193,7 +194,7 @@
                 <div class="lg:col-span-6 flex flex-col items-start animate-fade-in-up">
                     
                     <!-- Social Proof / Active Users -->
-                    <div class="flex items-center gap-4 -mt-2 sm:-mt-4 mb-6 sm:mb-20 group cursor-default">
+                    <div class="flex items-center gap-4 -mt-2 sm:-mt-4 mb-6 sm:mb-10 lg:mb-20 group cursor-default">
                         <div class="flex items-center -space-x-3.5 select-none">
                             <img 
                                 src="{{ asset('images/hero/avatar-1.jpg') }}" 
@@ -223,18 +224,18 @@
                     </div>
 
                     <!-- Main Headline -->
-                    <h1 class="text-[2.15rem] sm:text-5xl lg:text-[3.1rem] xl:text-[3.45rem] font-bold tracking-tight text-[#0f172a] leading-[1.16] mb-9 sm:mb-11">
+                    <h1 class="text-[2.15rem] sm:text-5xl md:text-[3.6rem] lg:text-[3.1rem] xl:text-[3.45rem] font-bold tracking-tight text-[#0f172a] leading-[1.16] mb-9 sm:mb-11">
                         <span class="block">Validasi Kompetensi</span>
                         <span class="block mt-1">
                             Bangun <span class="text-[#126658] transition-colors duration-300 hover:text-[#0b4a3f]">Masa Depan</span>
                         </span>
                         <span class="flex items-center gap-3 sm:gap-4 mt-2 flex-wrap sm:flex-nowrap">
                             <!-- Pill Badge Sertifikat -->
-                            <span class="inline-flex items-center justify-center bg-[#dce5e7] rounded-full h-9 sm:h-10 px-2.5 sm:px-3.5 overflow-visible shrink-0 transition-all duration-300 hover:bg-[#ccd8dc] hover:scale-105 cursor-pointer shadow-xs">
+                            <span class="inline-flex items-center justify-center bg-[#dce5e7] rounded-full h-[.8em] px-[.28em] lg:h-10 lg:px-3.5 overflow-visible shrink-0 transition-all duration-300 hover:bg-[#ccd8dc] hover:scale-105 cursor-pointer shadow-xs">
                                 <img 
                                     src="{{ asset('images/hero/certificate-hero.png') }}" 
                                     alt="Sertifikat" 
-                                    class="h-14 sm:h-16 w-auto object-contain select-none scale-125 transform -translate-y-0.5 transition-transform duration-300 hover:rotate-3"
+                                    class="h-[1.3em] lg:h-16 w-auto object-contain select-none scale-125 transform -translate-y-0.5 transition-transform duration-300 hover:rotate-3"
                                 />
                             </span>
                             <span>Profesional.</span>
@@ -287,7 +288,7 @@
                         </div>
 
                         <!-- Floating Card 1 -->
-                        <div class="hidden sm:flex items-stretch bg-white rounded-2xl p-3 shadow-[0_12px_32px_rgba(15,23,42,0.08)] border border-slate-100 absolute top-8 -left-24 lg:-left-32 z-10 w-[265px] animate-float transition-all duration-300 hover:scale-105 hover:shadow-xl hover:-translate-y-1">
+                        <div class="hidden sm:flex items-stretch bg-white rounded-2xl p-3 shadow-[0_12px_32px_rgba(15,23,42,0.08)] border border-slate-100 absolute top-8 left-3 md:-left-10 lg:-left-32 z-10 w-[265px] animate-float transition-all duration-300 hover:scale-105 hover:shadow-xl hover:-translate-y-1">
                             <div class="flex-1 pr-2.5">
                                 <div class="flex items-center gap-2.5">
                                     <img src="{{ asset('images/hero/khoirul.jpg') }}" alt="Dr. Eng. Khoirul" class="w-11 h-11 rounded-xl object-cover bg-amber-100 shrink-0" />
@@ -320,7 +321,7 @@
                         </div>
 
                         <!-- Floating Card 2 -->
-                        <div class="bg-white rounded-2xl p-3 shadow-[0_14px_34px_rgba(15,23,42,0.1)] border border-slate-100 absolute top-1/2 -translate-y-1/2 right-5 sm:right-8 z-10 w-[210px] sm:w-[235px] animate-float-delayed transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:-translate-y-[calc(50%+4px)]">
+                        <div class="bg-white rounded-2xl p-3 shadow-[0_14px_34px_rgba(15,23,42,0.1)] border border-slate-100 absolute top-1/2 -translate-y-1/2 right-5 sm:right-8 z-10 w-[165px] sm:w-[235px] animate-float-delayed transition-all duration-300 hover:scale-105 hover:shadow-2xl hover:-translate-y-[calc(50%+4px)]">
                             <div class="rounded-xl overflow-hidden bg-slate-100 aspect-[4/3.6] mb-2.5">
                                 <img 
                                     src="{{ asset('images/hero/eko-prosojo.jpg') }}" 
@@ -444,7 +445,7 @@
                                 </div>
 
                                 <!-- Text Content -->
-                                <div class="flex flex-col pt-20">
+                                <div class="flex flex-col sm:pt-20">
                                     <span class="text-xs font-bold text-slate-500 mb-2.5">30/11/2024</span>
                                     <h3 class="text-xl sm:text-2xl font-extrabold text-slate-900 leading-snug">
                                         Buka Peluang <br> Kerja Lebih Luas dengan Sertifikasi
@@ -469,7 +470,7 @@
                     <h2 class="text-3xl sm:text-[32px] font-bold tracking-tight text-slate-900 leading-[1.3] mb-8">
                         Langkah pasti menuju pengakuan <br class="hidden sm:inline">
                         <span class="bg-[#e2edf2] px-2 py-0.5 rounded-md text-[#095446]">kompetensi</span> 
-                        bersama lembaga sertifikasi yang terpercaya dan <br> terlisensi.
+                        bersama lembaga sertifikasi yang terpercaya dan <br class="hidden sm:inline"> terlisensi.
                     </h2>
 
                     <!-- Action Buttons -->
@@ -689,7 +690,7 @@
                                 <span class="w-9 h-9 rounded-full bg-[#006A69] text-white grid place-items-center">
                                     <svg class="w-[18px] h-[18px]" stroke-width="1.8" {!! $ckSvg !!}>{!! $s['icon'] !!}</svg>
                                 </span>
-                                <span class="text-[22px] sm:text-base font-semibold text-slate-900 leading-snug">{{ $s['title'] }}</span>
+                                <span class="text-[15px] sm:text-base font-semibold text-slate-900 leading-snug">{{ $s['title'] }}</span>
                                 <span class="rounded-full bg-white px-4 py-2 text-sm font-semibold text-slate-900">Learn More</span>
                             </div>
                             <div class="ck-detail">
@@ -848,7 +849,7 @@
         <div class="max-w-[1400px] mx-auto px-6 sm:px-10 lg:px-16 pt-12 lg:pt-16 pb-12 lg:pb-16 grid grid-cols-1 lg:grid-cols-12 gap-10 lg:gap-8">
 
             {{-- Kolom Kiri: Heading + 1 Baris Sub-teks --}}
-            <div class="lg:col-span-6 max-w-[34rem] lg:max-w-none flex flex-col items-start">
+            <div class="lg:col-span-12 xl:col-span-6 max-w-[34rem] lg:max-w-none flex flex-col items-start">
                 <h2 class="text-xl sm:text-2xl lg:text-[1.75rem] font-bold tracking-tight leading-[1.25] text-[#0f172a]">
                     Membangun generasi profesional dengan kompetensi yang diakui industri
                 </h2>
@@ -858,7 +859,7 @@
             </div>
 
             {{-- Kolom Kanan: Navigasi & Newsletter --}}
-            <div class="lg:col-span-6 grid grid-cols-1 sm:grid-cols-[1fr_1fr_1.4fr] gap-8 sm:gap-6 lg:gap-8">
+            <div class="lg:col-span-12 xl:col-span-6 grid grid-cols-1 sm:grid-cols-2 md:grid-cols-[1fr_1fr_1.4fr] gap-8 sm:gap-6 lg:gap-8">
 
                 <nav aria-label="Layanan kami">
                     <h3 class="text-[17px] font-semibold uppercase text-slate-900 mb-5">Layanan Kami</h3>
@@ -877,7 +878,7 @@
                     </ul>
                 </nav>
 
-                <div>
+                <div class="sm:col-span-2 md:col-span-1">
                     <h3 class="text-[17px] font-semibold uppercase text-slate-900 mb-5">Newsletter</h3>
                     {{-- Ganti action dengan route newsletter asli (method POST sudah ada @csrf) --}}
                     <form action="#" method="POST" onsubmit="event.preventDefault()"

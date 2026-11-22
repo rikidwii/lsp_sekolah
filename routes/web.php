@@ -8,6 +8,10 @@ use App\Http\Controllers\Auth\RegisterController;
 use App\Http\Controllers\DashboardController;
 use App\Http\Controllers\PlaceholderController;
 use Illuminate\Support\Facades\Route;
+use App\Http\Controllers\Asesi\AsesiDashboardController;
+use App\Http\Controllers\Asesi\JadwalController;
+use App\Http\Controllers\Asesi\HasilController;
+use App\Http\Controllers\Asesi\SertifikatController;
 
 Route::name('guest.')->group(function () {
     Route::get('/', fn () => view('guest.index'))->name('index');
@@ -45,7 +49,18 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::middleware('role:asesi')->prefix('asesi')->name('asesi.')->group(function () {
-        Route::get('/dashboard', [DashboardController::class, 'asesi'])->name('dashboard');
-        Route::get('/skema', [SkemaController::class, 'index'])->name('skema.index');
+    Route::get('/dashboard', [AsesiDashboardController::class, 'index'])->name('dashboard');
+    Route::post('/notifikasi/baca', [AsesiDashboardController::class, 'bacaSemua'])->name('notifikasi.baca');
+    Route::get('/skema', [SkemaController::class, 'index'])->name('skema.index');
+    Route::view('/skema/daftar',  'asesi.skema.daftar')->name('skema.daftar');
+    Route::view('/skema/detail',  'asesi.skema.detail')->name('skema.detail');
+    // nanti saat backend jadi:
+    // Route::post('/skema/daftar', [SkemaController::class, 'store'])->name('skema.daftar.store');
+    Route::get('/jadwal', [JadwalController::class, 'index'])->name('jadwal.index');
+    Route::get('/hasil', [HasilController::class, 'index'])->name('hasil.index');
+    Route::get('/hasil/{id}', [HasilController::class, 'show'])->name('hasil.show');
+    Route::get('/sertifikat', [SertifikatController::class, 'index'])->name('sertifikat.index');
+    Route::get('/sertifikat/{sertifikat}/lihat', [SertifikatController::class, 'lihat'])->name('sertifikat.lihat');
+    Route::get('/sertifikat/{sertifikat}/unduh', [SertifikatController::class, 'unduh'])->name('sertifikat.unduh');
     });
 });
