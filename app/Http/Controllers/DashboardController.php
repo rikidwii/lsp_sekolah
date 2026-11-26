@@ -12,7 +12,7 @@ class DashboardController extends Controller
     {
         return match (Auth::user()->role) {
             'admin' => redirect()->route('admin.dashboard'),
-            'asesor' => redirect()->route('asesor.dashboard'),
+            'asesor' => redirect()->route('asesor.dashboard.index'),
             default => redirect()->route('asesi.dashboard'),
         };
     }

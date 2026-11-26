@@ -12,9 +12,9 @@ return [
     ],
 
     'asesor' => [
-        ['label' => 'Dashboard', 'route' => 'asesor.dashboard', 'icon' => 'grid'],
+        ['label' => 'Dashboard', 'route' => 'asesor.dashboard.index', 'icon' => 'grid'],
         ['label' => 'Daftar Asesi', 'route' => 'asesor.asesi.index', 'icon' => 'users', 'dynamic_badge' => 'total_asesi'],
-        ['label' => 'Jadwal Asesmen', 'route' => 'placeholder', 'params' => ['title' => 'Jadwal Asesmen'], 'icon' => 'calendar', 'dot' => true],
+        ['label' => 'Jadwal Asesmen', 'route' => 'asesor.jadwal.index', 'params' => ['title' => 'Jadwal Asesmen'], 'icon' => 'calendar', 'dot' => true],
         ['label' => 'Riwayat Penilaian', 'route' => 'placeholder', 'params' => ['title' => 'Riwayat Penilaian'], 'icon' => 'clipboard'],
     ],
 

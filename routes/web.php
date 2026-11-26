@@ -12,6 +12,8 @@ use App\Http\Controllers\Asesi\AsesiDashboardController;
 use App\Http\Controllers\Asesi\JadwalController;
 use App\Http\Controllers\Asesi\HasilController;
 use App\Http\Controllers\Asesi\SertifikatController;
+use App\Http\Controllers\Asesor\AsesorDashboardController;
+use App\Http\Controllers\Asesor\JadwalAsesmenController;
 
 Route::name('guest.')->group(function () {
     Route::get('/', fn () => view('guest.index'))->name('index');
@@ -44,8 +46,10 @@ Route::middleware('auth')->group(function () {
     });
 
     Route::middleware('role:asesor')->prefix('asesor')->name('asesor.')->group(function () {
-        Route::get('/dashboard', [DashboardController::class, 'asesor'])->name('dashboard');
+        Route::get('/dashboard', [AsesorDashboardController::class, 'index'])->name('dashboard.index');
         Route::get('/daftar-asesi', [AsesiController::class, 'index'])->name('asesi.index');
+        Route::get('/jadwal', [JadwalAsesmenController::class, 'index'])->name('jadwal.index');
+        Route::get('/jadwal/export', [JadwalAsesmenController::class, 'export'])->name('jadwal.export');
     });
 
     Route::middleware('role:asesi')->prefix('asesi')->name('asesi.')->group(function () {
