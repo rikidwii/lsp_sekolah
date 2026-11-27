@@ -90,7 +90,31 @@
                 </div>
             @endif
         @endif
-
+@if (auth()->check() && auth()->user()->role === 'asesi')
+    @php
+        $u = auth()->user();
+        $parts = preg_split('/\s+/', trim($u->name ?? 'A'));
+        $inisial = strtoupper(mb_substr($parts[0] ?? 'A', 0, 1) . (isset($parts[1]) ? mb_substr($parts[1], 0, 1) : ''));
+        $nisn = $u->asesiProfile?->nis_nisn ?: '-';
+        $isProfilActive = request()->routeIs('asesi.profil.*');
+    @endphp
+    <a href="{{ route('asesi.profil.index') }}"
+       class="mb-3 flex items-center gap-3 rounded-xl border-l-4 border-l-[#0b5a49] bg-gradient-to-r from-emerald-50/90 to-slate-50 p-3 transition-all hover:shadow-sm {{ $isProfilActive ? 'ring-1 ring-[#0b5a49]/40 bg-emerald-50' : '' }}">
+        @if ($u->foto_profil)
+            <img src="{{ asset('storage/' . $u->foto_profil) }}" alt="{{ $u->name }}"
+                 class="h-10 w-10 shrink-0 rounded-full object-cover ring-1 ring-emerald-200">
+        @else
+            <span class="grid h-10 w-10 shrink-0 place-items-center rounded-full border border-emerald-300 bg-white text-xs font-bold text-[#0b5a49]">
+                {{ $inisial }}
+            </span>
+        @endif
+        <div class="min-w-0 flex-1">
+            <p class="truncate text-xs font-bold text-[#0b5a49]">{{ $u->name }}</p>
+            <p class="truncate font-mono text-[10px] text-slate-500">NISN: {{ $nisn }}</p>
+        </div>
+        <span class="h-2 w-2 shrink-0 rounded-full bg-emerald-500"></span>
+    </a>
+@endif
         <form method="POST" action="{{ route('logout') }}">
             @csrf
             <button type="submit" class="w-full flex items-center gap-2 px-3 py-2.5 text-sm font-medium text-rose-500 hover:bg-rose-50 rounded-xl">

@@ -14,6 +14,7 @@ use App\Http\Controllers\Asesi\HasilController;
 use App\Http\Controllers\Asesi\SertifikatController;
 use App\Http\Controllers\Asesor\AsesorDashboardController;
 use App\Http\Controllers\Asesor\JadwalAsesmenController;
+use App\Http\Controllers\Asesi\ProfilController;
 
 Route::name('guest.')->group(function () {
     Route::get('/', fn () => view('guest.index'))->name('index');
@@ -66,5 +67,10 @@ Route::middleware('auth')->group(function () {
     Route::get('/sertifikat', [SertifikatController::class, 'index'])->name('sertifikat.index');
     Route::get('/sertifikat/{sertifikat}/lihat', [SertifikatController::class, 'lihat'])->name('sertifikat.lihat');
     Route::get('/sertifikat/{sertifikat}/unduh', [SertifikatController::class, 'unduh'])->name('sertifikat.unduh');
+    Route::get('/profil', [ProfilController::class, 'index'])->name('profil.index');
+Route::put('/profil', [ProfilController::class, 'update'])->name('profil.update');
+Route::put('/profil/password', [ProfilController::class, 'updatePassword'])->name('profil.password');
+Route::delete('/profil/foto', [ProfilController::class, 'destroyFoto'])->name('profil.foto.destroy');
+Route::post('/profil/sinkron-dapodik', [ProfilController::class, 'syncDapodik'])->name('profil.sync');
     });
 });
