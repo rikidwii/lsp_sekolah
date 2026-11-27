@@ -40,12 +40,12 @@
     <div class="mt-2 flex flex-col md:flex-row md:items-start md:justify-between gap-4">
         <div>
             <h1 class="text-3xl font-bold text-slate-900">Hasil & Status Kelulusan</h1>
-            <p class="mt-1 text-sm text-slate-500">Skema Sertifikasi: <b class="{{ $ok ? 'text-[#0b5a49]' : 'text-rose-700' }}">{{ $h->nama }}</b> <span class="text-xs text-slate-400">• {{ $h->kode }} • Standar {{ ucwords(strtolower($h->level)) }}</span></p>
+            <p class="mt-1 text-sm text-slate-500">Skema Sertifikasi: <b class="{{ $ok ? 'text-[#0b5a49]' : 'text-rose-700' }}">{{ $h->nama }}</b> <span class="text-xs text-slate-400">• {{ $h->kode }} • {{ ucwords(strtolower($h->level)) }}</span></p>
         </div>
         <div class="flex flex-wrap gap-2 shrink-0">
-            <a href="{{ route('asesi.hasil.index') }}" class="inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 px-3.5 py-2 text-xs font-semibold text-slate-700"><svg class="w-3.5 h-3.5" {!! $a !!}>{!! $ic['left'] !!}</svg>Kembali</a>
-            @if ($ok)<a href="{{ $h->url_sertifikat ?? '#' }}" class="inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 px-3.5 py-2 text-xs font-semibold text-slate-800"><svg class="w-3.5 h-3.5" {!! $a !!}>{!! $ic['down'] !!}</svg>Unduh Sertifikat (PDF)</a>@endif
-            <a href="#transkrip" class="inline-flex items-center rounded-lg px-4 py-2 text-xs font-semibold text-white {{ $ok ? 'bg-[#0b5a49] hover:bg-[#074237]' : 'bg-rose-700 hover:bg-rose-800' }} transition-colors">Lihat Detail Transkrip</a>
+            <a href="{{ route('asesi.hasil.index') }}" class="cursor-pointer inline-flex items-center gap-1.5 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 px-3.5 py-2 text-xs font-semibold text-slate-700"><svg class="w-3.5 h-3.5" {!! $a !!}>{!! $ic['left'] !!}</svg>Kembali</a>
+            @if ($ok)<a href="{{ $h->url_sertifikat ?? '#' }}" class="cursor-pointer inline-flex items-center gap-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 px-3.5 py-2 text-xs font-semibold text-slate-800"><svg class="w-3.5 h-3.5" {!! $a !!}>{!! $ic['down'] !!}</svg>Unduh Sertifikat (PDF)</a>@endif
+            <a href="{{ route('asesi.hasil.transkrip', $h->id) }}" class="cursor-pointer inline-flex items-center gap-2 rounded-lg px-4 py-2 text-xs font-semibold text-white {{ $ok ? 'bg-[#0b5a49] hover:bg-[#074237]' : 'bg-rose-700 hover:bg-rose-800' }} transition-colors"><svg class="w-3.5 h-3.5" {!! $a !!}>{!! $ic['down'] !!}</svg>Transkrip Nilai</a>
         </div>
     </div>
 
@@ -65,7 +65,7 @@
             <span class="mx-auto inline-flex items-center gap-1.5 rounded-full border px-4 py-1.5 text-xs font-bold {{ $ok ? 'border-emerald-200 bg-emerald-100 text-emerald-800' : 'border-rose-200 bg-rose-100 text-rose-700' }}">
                 <svg class="w-4 h-4" stroke-width="2.4" {!! $a !!}>{!! $ic[$ok ? 'check' : 'x'] !!}</svg>{{ $ok ? 'KOMPETEN (K)' : 'BELUM KOMPETEN (BK)' }}</span>
             <p class="mt-3 text-[11px] text-slate-500 leading-relaxed">Nilai {{ $ok ? 'melampaui' : 'belum mencapai' }} standar ambang batas kelulusan LSP ({{ number_format($pass, 2) }}).</p>
-            <p class="mt-auto pt-6 text-[11px] text-slate-400">Tanggal uji: {{ $d->translatedFormat('d F Y') }} • TUK: {{ $h->tuk }}</p>
+            <p class="mt-auto pt-6 text-[11px] text-slate-400">Tanggal uji: {{ $d->translatedFormat('d F Y') }}</p>
         </section>
 
         {{-- Skor teori & praktik --}}

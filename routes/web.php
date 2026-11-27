@@ -54,11 +54,14 @@ Route::middleware('auth')->group(function () {
     Route::get('/skema', [SkemaController::class, 'index'])->name('skema.index');
     Route::view('/skema/daftar',  'asesi.skema.daftar')->name('skema.daftar');
     Route::view('/skema/detail',  'asesi.skema.detail')->name('skema.detail');
+    Route::get('/skema/{kode}/transkrip',  [SkemaController::class, 'transkrip'])->name('skema.transkrip');
+    Route::get('/skema/{kode}/sertifikat', [SkemaController::class, 'sertifikat'])->name('skema.sertifikat');
     // nanti saat backend jadi:
     // Route::post('/skema/daftar', [SkemaController::class, 'store'])->name('skema.daftar.store');
     Route::get('/jadwal', [JadwalController::class, 'index'])->name('jadwal.index');
     Route::get('/hasil', [HasilController::class, 'index'])->name('hasil.index');
     Route::get('/hasil/{id}', [HasilController::class, 'show'])->name('hasil.show');
+    Route::get('/hasil/{id}/transkrip', [HasilController::class, 'transkrip'])->name('hasil.transkrip');
     Route::get('/sertifikat', [SertifikatController::class, 'index'])->name('sertifikat.index');
     Route::get('/sertifikat/{sertifikat}/lihat', [SertifikatController::class, 'lihat'])->name('sertifikat.lihat');
     Route::get('/sertifikat/{sertifikat}/unduh', [SertifikatController::class, 'unduh'])->name('sertifikat.unduh');

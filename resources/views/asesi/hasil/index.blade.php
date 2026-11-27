@@ -11,16 +11,17 @@
         'arrow' => '<path d="M5 12h14M12 5l7 7-7 7"/>',
         'check' => '<path d="m5 12.5 4.5 4.5L19 7.5"/>',
         'x'     => '<path d="M6 6l12 12M18 6 6 18"/>',
+        'cal'   => '<rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',
     ];
     $cards = [
-        ['TOTAL SKEMA DIUJI', $stat['total'] . ' Skema', $stat['lulus'] . ' Lulus • ' . $stat['belum'] . ' Perlu Asesmen Ulang', 'bag', '#eef2ff', 'bg-indigo-100 text-indigo-600', 'text-slate-900'],
+        ['TOTAL SKEMA', $stat['total'] . ' Skema', $stat['lulus'] . ' Kompeten • ' . $stat['belum'] . ' Belum Kompeten', 'bag', '#eef2ff', 'bg-indigo-100 text-indigo-600', 'text-slate-900'],
         ['TINGKAT KELULUSAN', $stat['persen'] . '%', 'Tingkat Kompetensi Asesi', 'ok', '#ecfdf5', 'bg-emerald-100 text-emerald-600', 'text-emerald-700'],
         ['RATA-RATA SKOR', $stat['rata'], 'Nilai Gabungan Teori & Praktik', 'chart', '#eff6ff', 'bg-blue-100 text-blue-600', 'text-slate-900'],
-        ['SERTIFIKAT TERBIT', $stat['sertifikat'] . ' Lisensi', $stat['berlaku'] ? 'Berlaku Aktif s/d ' . $stat['berlaku'] : 'Menunggu penerbitan', 'award', '#fffbeb', 'bg-amber-100 text-amber-600', 'text-slate-900'],
+        ['SERTIFIKAT TERBIT', $stat['sertifikat'] . ' Lisensi', $stat['menunggu'] > 0 ? $stat['menunggu'] . ' Hasil Menunggu Penerbitan' : 'Semua sertifikat sudah terbit', 'award', '#fffbeb', 'bg-amber-100 text-amber-600', 'text-slate-900'],
     ];
     $bar = ['green' => 'bg-emerald-700', 'amber' => 'bg-amber-500', 'red' => 'bg-rose-500'];
     $txt = ['green' => 'text-emerald-600', 'amber' => 'text-amber-600', 'red' => 'text-rose-600'];
-    $btnO = 'inline-flex items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 px-4 py-2 text-xs font-semibold text-slate-800 transition-colors';
+    $btnO = 'cursor-pointer inline-flex items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 px-4 py-2 text-xs font-semibold text-slate-800 transition-colors';
     $n = 0;
 @endphp
 
@@ -54,21 +55,44 @@
 
     {{-- Tab + filter --}}
     <div class="mt-7 flex flex-col lg:flex-row lg:items-center lg:justify-between gap-3 border-b border-slate-200">
-        <div class="flex gap-5 overflow-x-auto" role="tablist">
-            @foreach ([['semua', 'Semua Hasil', $stat['total']], ['K', 'Kompeten (K)', $stat['lulus']], ['BK', 'Belum Kompeten (BK)', $stat['belum']], ['tahun', 'Tahun ' . $tahun, null]] as [$key, $lbl, $cnt])
+        <div class="flex gap-5 overflow-x-auto overflow-y-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" role="tablist">
+            @foreach ([['semua', 'Semua Hasil', $stat['total']], ['K', 'Kompeten (K)', $stat['lulus']], ['BK', 'Belum Kompeten (BK)', $stat['belum']]] as [$key, $lbl, $cnt])
                 <button type="button" role="tab" data-tab="{{ $key }}" aria-selected="{{ $loop->first ? 'true' : 'false' }}"
-                        class="shrink-0 -mb-px pb-3 border-b-2 border-transparent text-[13px] font-medium text-slate-500 hover:text-slate-800 transition-colors aria-selected:border-[#0b5a49] aria-selected:text-[#0b5a49] aria-selected:font-semibold">
+                        class="cursor-pointer shrink-0 -mb-px pb-3 border-b-2 border-transparent text-[13px] font-medium text-slate-500 hover:text-slate-800 transition-colors aria-selected:border-[#0b5a49] aria-selected:text-[#0b5a49] aria-selected:font-semibold">
                     {{ $lbl }} @if (! is_null($cnt))<span class="ml-1 px-1.5 py-0.5 rounded-md bg-slate-100 text-[10px] text-slate-500">{{ $cnt }}</span>@endif
                 </button>
             @endforeach
         </div>
-        <div class="flex gap-2 pb-3">
-            <select data-sort class="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-700">
-                <option value="terbaru">Urutkan: Tanggal Uji Terkini</option>
-                <option value="terlama">Urutkan: Tanggal Uji Terlama</option>
-                <option value="skor">Urutkan: Skor Tertinggi</option>
+        <div class="flex flex-wrap items-center gap-2 pb-3">
+            {{-- Filter rentang tanggal uji: ikon kalender, klik untuk memilih tanggal mulai s/d selesai --}}
+            <div class="relative" data-range>
+                <input type="hidden" data-from><input type="hidden" data-to>
+                <button type="button" data-range-btn aria-haspopup="dialog" aria-expanded="false" title="Filter rentang tanggal uji"
+                        class="relative cursor-pointer w-9 h-9 grid place-items-center rounded-lg border border-slate-200 bg-white text-slate-500 hover:bg-slate-50 hover:text-[#0b5a49] transition-colors data-[active=true]:border-[#0b5a49] data-[active=true]:bg-emerald-50 data-[active=true]:text-[#0b5a49]">
+                    <svg class="w-4 h-4" {!! $a !!}>{!! $ic['cal'] !!}</svg>
+                    <span data-range-dot class="hidden absolute -top-1 -right-1 w-2.5 h-2.5 rounded-full bg-[#0b5a49] ring-2 ring-white"></span>
+                </button>
+                <div data-range-pop role="dialog" aria-label="Pilih rentang tanggal uji" class="hidden absolute right-0 lg:right-auto lg:left-0 top-full mt-2 z-30 w-[288px] rounded-xl border border-slate-200 bg-white p-4 shadow-[0_12px_32px_rgba(15,23,42,.16)]">
+                    <div class="flex items-center justify-between">
+                        <button type="button" data-rp-prev aria-label="Bulan sebelumnya" class="cursor-pointer w-7 h-7 rounded-lg grid place-items-center text-slate-500 hover:bg-slate-100"><svg class="w-4 h-4" {!! $a !!}><path d="m15 18-6-6 6-6"/></svg></button>
+                        <p data-rp-title class="text-sm font-bold text-slate-900"></p>
+                        <button type="button" data-rp-next aria-label="Bulan berikutnya" class="cursor-pointer w-7 h-7 rounded-lg grid place-items-center text-slate-500 hover:bg-slate-100"><svg class="w-4 h-4" {!! $a !!}><path d="m9 18 6-6-6-6"/></svg></button>
+                    </div>
+                    <div class="mt-3 grid grid-cols-7 text-center text-[10px] font-semibold text-slate-400">@foreach (['MIN', 'SEN', 'SEL', 'RAB', 'KAM', 'JUM', 'SAB'] as $hh)<span>{{ $hh }}</span>@endforeach</div>
+                    <div data-rp-grid class="mt-1.5 grid grid-cols-7 gap-y-1"></div>
+                    <p data-rp-label class="mt-3 pt-3 border-t border-slate-100 text-[11px] font-semibold text-slate-600 text-center">Pilih tanggal mulai</p>
+                    <div class="mt-3 flex gap-2">
+                        <button type="button" data-rp-reset class="cursor-pointer flex-1 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 px-3 py-2 text-xs font-semibold text-slate-700 transition-colors">Reset</button>
+                        <button type="button" data-rp-apply class="cursor-pointer flex-1 rounded-lg bg-[#0b5a49] hover:bg-[#074237] px-3 py-2 text-xs font-semibold text-white transition-colors">Terapkan</button>
+                    </div>
+                </div>
+            </div>
+            <select data-sort class="cursor-pointer rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-700">
+                <option value="terbaru">Tanggal Uji Terkini</option>
+                <option value="terlama">Tanggal Uji Terlama</option>
+                <option value="skor">Skor Tertinggi</option>
             </select>
-            <select data-jur class="rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-700">
+            <select data-jur class="cursor-pointer rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-medium text-slate-700">
                 <option value="">Semua Jurusan</option>
                 @foreach ($jurusan as $j)<option value="{{ $j }}">{{ $j }}</option>@endforeach
             </select>
@@ -79,8 +103,8 @@
     <div data-list class="mt-6 space-y-5">
         @foreach ($hasil as $h)
             @php $ok = $h->status === 'K'; $d = $h->tanggal_uji->copy()->locale('id'); @endphp
-            <article data-item data-status="{{ $h->status }}" data-year="{{ $d->year }}" data-ts="{{ $d->timestamp }}" data-skor="{{ $h->skor }}" data-jur="{{ $h->jurusan }}"
-                     class="hs-in rounded-2xl border overflow-hidden bg-white shadow-[0_1px_2px_rgba(15,23,42,.04)] {{ $ok ? ($h->terkini ? 'border-emerald-300 ring-2 ring-emerald-100' : 'border-slate-200/80') : 'border-rose-200' }}" style="animation-delay:{{ .3 + $n++ * .1 }}s">
+            <article data-item data-status="{{ $h->status }}" data-date="{{ $d->format('Y-m-d') }}" data-ts="{{ $d->timestamp }}" data-skor="{{ $h->skor }}" data-jur="{{ $h->jurusan }}"
+                     class="hs-in group rounded-2xl border overflow-hidden bg-white shadow-[0_1px_2px_rgba(15,23,42,.04)] transition-all duration-300 ease-out hover:-translate-y-1 {{ $ok ? 'border-emerald-300 hover:border-emerald-500 hover:shadow-[0_14px_30px_rgba(16,185,129,.18)]' : 'border-rose-300 hover:border-rose-500 hover:shadow-[0_14px_30px_rgba(244,63,94,.16)]' }}" style="animation-delay:{{ .3 + $n++ * .1 }}s">
 
                 <div class="flex flex-wrap items-center justify-between gap-2 px-5 py-3 text-xs border-b {{ $ok ? 'border-slate-100' : 'border-rose-100 bg-rose-50/70' }}">
                     <div class="flex flex-wrap items-center gap-x-3 gap-y-1">
@@ -105,9 +129,9 @@
                         </div>
                     </div>
 
-                    <div class="rounded-xl border border-slate-100 bg-slate-50/60 p-4 flex flex-col sm:flex-row gap-4">
-                        <div class="shrink-0 sm:w-40 rounded-xl border bg-white p-4 text-center {{ $ok ? 'border-slate-200' : 'border-rose-200' }}">
-                            <span class="inline-flex items-center justify-center gap-1 rounded-full px-3 py-1 text-[10px] font-bold {{ $ok ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-600' }}"><svg class="w-3 h-3" stroke-width="2.6" {!! $a !!}>{!! $ic[$ok ? 'check' : 'x'] !!}</svg>{{ $ok ? 'KOMPETEN (K)' : 'BELUM KOMPETEN' }}</span>
+                    <div class="rounded-xl border border-slate-100 bg-slate-50/60 p-4 flex flex-col sm:flex-row sm:items-start gap-4">
+                        <div class="shrink-0 w-full sm:w-44 sm:self-start rounded-xl border bg-white px-3 py-4 text-center {{ $ok ? 'border-slate-200' : 'border-rose-200' }}">
+                            <span class="inline-flex items-center justify-center gap-1 whitespace-nowrap rounded-full px-3 py-1 text-[10px] font-bold {{ $ok ? 'bg-emerald-100 text-emerald-700' : 'bg-rose-100 text-rose-600' }}"><svg class="w-3 h-3" stroke-width="2.6" {!! $a !!}>{!! $ic[$ok ? 'check' : 'x'] !!}</svg>{{ $ok ? 'KOMPETEN (K)' : 'BELUM KOMPETEN' }}</span>
                             <p class="mt-2 text-4xl font-bold {{ $ok ? 'text-emerald-800' : 'text-rose-600' }}">{{ round($h->skor) }}%</p>
                             <p class="text-[11px] text-slate-400">Total Skor Akhir</p>
                             <p class="text-[10px] {{ $ok ? 'text-slate-400' : 'text-rose-500' }}">{{ $ok ? 'Standar Lulus' : 'Ambang Batas' }}: 75.00</p>
@@ -153,7 +177,7 @@
         const empty = list.querySelector('[data-empty]');
         const tabs = [...root.querySelectorAll('[data-tab]')];
         const sortEl = root.querySelector('[data-sort]'), jurEl = root.querySelector('[data-jur]');
-        const tahun = {{ (int) $tahun }};
+        const from = root.querySelector('[data-from]'), to = root.querySelector('[data-to]');
         let tab = 'semua';
 
         function apply() {
@@ -161,8 +185,9 @@
             const sorted = [...items].sort((x, y) => s === 'skor' ? y.dataset.skor - x.dataset.skor : s === 'terlama' ? x.dataset.ts - y.dataset.ts : y.dataset.ts - x.dataset.ts);
             let shown = 0;
             sorted.forEach((el) => {
-                const okTab = tab === 'semua' || tab === el.dataset.status || (tab === 'tahun' && +el.dataset.year === tahun);
-                const on = okTab && (!jur || el.dataset.jur === jur);
+                const okTab = tab === 'semua' || tab === el.dataset.status;
+                const okTgl = (!from.value || el.dataset.date >= from.value) && (!to.value || el.dataset.date <= to.value);
+                const on = okTab && okTgl && (!jur || el.dataset.jur === jur);
                 el.classList.toggle('hidden', !on);
                 if (on) shown++;
                 list.insertBefore(el, empty);
@@ -174,6 +199,59 @@
             tabs.forEach((x) => x.setAttribute('aria-selected', x === b ? 'true' : 'false'));
             apply();
         }));
+        // ---- Kalender rentang tanggal ----
+        const rng = root.querySelector('[data-range]'), btn = rng.querySelector('[data-range-btn]'), pop = rng.querySelector('[data-range-pop]');
+        const rpTitle = pop.querySelector('[data-rp-title]'), rpGrid = pop.querySelector('[data-rp-grid]'), rpLabel = pop.querySelector('[data-rp-label]');
+        const BLN = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+        const pad = (n) => String(n).padStart(2, '0');
+        const kunci = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+        const fmt = (k) => { const [y, m, d] = k.split('-'); return `${+d} ${BLN[m - 1].slice(0, 3)} ${y}`; };
+        let st = '', en = '', view = new Date(); view = new Date(view.getFullYear(), view.getMonth(), 1);
+
+        const label = () => { rpLabel.textContent = !st ? 'Pilih tanggal mulai' : !en ? `${fmt(st)} – pilih tanggal akhir` : (st === en ? fmt(st) : `${fmt(st)} – ${fmt(en)}`); };
+        const gambar = () => {
+            rpTitle.textContent = `${BLN[view.getMonth()]} ${view.getFullYear()}`;
+            rpGrid.innerHTML = '';
+            const start = new Date(view); start.setDate(1 - view.getDay());
+            for (let i = 0; i < 42; i++) {
+                const d = new Date(start); d.setDate(start.getDate() + i);
+                if (i === 35 && d.getMonth() !== view.getMonth()) break;
+                const k = kunci(d), luar = d.getMonth() !== view.getMonth();
+                const ujung = k === st || k === en, tengah = st && en && k > st && k < en;
+                const b = document.createElement('button');
+                b.type = 'button'; b.textContent = d.getDate();
+                b.className = 'cursor-pointer h-8 text-xs transition-colors ' + (ujung ? 'bg-[#0b5a49] text-white font-bold rounded-lg' : tengah ? 'bg-emerald-100 text-emerald-900 font-semibold' : (luar ? 'text-slate-300 hover:bg-slate-100 rounded-lg' : 'text-slate-700 hover:bg-slate-100 rounded-lg'));
+                if (k === st && en && st !== en) b.classList.add('rounded-r-none');
+                if (k === en && st !== en) b.classList.add('rounded-l-none');
+                b.addEventListener('click', () => {
+                    if (!st || (st && en)) { st = k; en = ''; }
+                    else if (k < st) { st = k; }
+                    else { en = k; }
+                    label(); gambar();
+                });
+                rpGrid.appendChild(b);
+            }
+        };
+        const terapkan = () => {
+            from.value = st; to.value = st ? (en || st) : '';
+            btn.dataset.active = st ? 'true' : 'false';
+            btn.querySelector('[data-range-dot]').classList.toggle('hidden', !st);
+            btn.title = st ? `Tanggal uji: ${fmt(from.value)}${from.value !== to.value ? ' – ' + fmt(to.value) : ''}` : 'Filter rentang tanggal uji';
+            apply();
+        };
+        const tutup = () => { pop.classList.add('hidden'); btn.setAttribute('aria-expanded', 'false'); };
+        btn.addEventListener('click', () => {
+            const buka = pop.classList.contains('hidden');
+            pop.classList.toggle('hidden', !buka); btn.setAttribute('aria-expanded', String(buka));
+            if (buka) { st = from.value; en = to.value; if (st) { const [y, m] = st.split('-'); view = new Date(+y, m - 1, 1); } label(); gambar(); }
+        });
+        pop.querySelector('[data-rp-prev]').addEventListener('click', () => { view = new Date(view.getFullYear(), view.getMonth() - 1, 1); gambar(); });
+        pop.querySelector('[data-rp-next]').addEventListener('click', () => { view = new Date(view.getFullYear(), view.getMonth() + 1, 1); gambar(); });
+        pop.querySelector('[data-rp-reset]').addEventListener('click', () => { st = ''; en = ''; terapkan(); label(); gambar(); tutup(); });
+        pop.querySelector('[data-rp-apply]').addEventListener('click', () => { terapkan(); tutup(); });
+        pop.addEventListener('click', (e) => e.stopPropagation());   // grid digambar ulang saat klik; jangan dianggap klik di luar
+        document.addEventListener('click', (e) => { if (!rng.contains(e.target)) tutup(); });
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape') tutup(); });
         sortEl.addEventListener('change', apply);
         jurEl.addEventListener('change', apply);
         apply();

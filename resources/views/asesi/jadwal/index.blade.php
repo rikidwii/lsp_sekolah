@@ -1,59 +1,65 @@
-{{-- resources/views/jadwal/index.blade.php --}}
+{{-- resources/views/asesi/jadwal/index.blade.php --}}
 {{--
   KONTRAK DATA (dikirim controller saat backend jadi). Selama belum dikirim, halaman memakai DATA DUMMY di bawah.
 
-  $mendatang : koleksi jadwal yang akan datang
-      tanggal (Carbon/date), jenis ('offline'|'online'), ikon (monitor|image), skema, judul, subjudul, jam,
-      lokasi (offline), link_online (online), asesor, penempatan (opsional),
-      catatan, catatan_tone ('warning'|'info'), url_kartu
-  $riwayat   : koleksi jadwal selesai
-      tanggal, hasil, skema, judul, asesor, nilai, no_reg, url_hasil, url_sertifikat
+  $jadwal : koleksi jadwal asesmen milik asesi yang login (hari ini dan seterusnya; jadwal lampau tidak ditampilkan,
+            riwayat ada di menu "Daftar Skema")
+      tanggal (Carbon/date), waktu_mulai ("08:00"; hanya jam mulai), jenis ('Klaster'|'Okupasi'|'KKNI', dari admin),
+      judul (nama skema), bidang (kategori/bidang keahlian skema, opsional), asesor,
+      catatan (opsional), catatan_tone ('warning'|'info'),
+      no_registrasi (untuk Kartu Registrasi PNG), nama_asesi (opsional; default nama user login)
 --}}
 @php
     use Carbon\Carbon;
 
     // ===================== DATA DUMMY (hapus blok ini bila backend sudah mengirim data) =====================
-    $mendatang ??= collect([
-        (object) ['tanggal' => now()->addDays(3), 'jenis' => 'offline', 'ikon' => 'monitor', 'skema' => 'Skema KKNI Level II',
-                  'judul' => 'Rekayasa Perangkat Lunak', 'subjudul' => 'Uji Praktik Demonstrasi - Junior Web Developer',
-                  'jam' => '08:00 - 12:00 WIB (Sesi Pagi)', 'lokasi' => 'Lab Komputer 1 (Gedung A, Lt. 2)',
-                  'asesor' => 'Bpk. Dr. Ir. Budi Santoso, M.Kom', 'penempatan' => 'Meja PX-14 (TUK Mandiri)',
-                  'catatan' => 'Wajib hadir 30 menit sebelum sesi dimulai', 'catatan_tone' => 'warning'],
-        (object) ['tanggal' => now()->addDays(10), 'jenis' => 'online', 'ikon' => 'image', 'skema' => 'Klaster Multimedia',
-                  'judul' => 'Desain Grafis', 'subjudul' => 'Asesmen Portofolio & Wawancara Daring',
-                  'jam' => '13:00 - 15:00 WIB (Sesi Siang)', 'link_online' => '#',
-                  'asesor' => 'Ibu Siti Aminah, S.Ds (Lisensi Asesor BNSP)',
-                  'catatan' => 'Siapkan file portofolio karya asli format PDF/Behance.', 'catatan_tone' => 'info'],
-    ]);
-    $riwayat ??= collect([
-        (object) ['tanggal' => now()->subDays(75), 'hasil' => 'Kompeten (Lulus)', 'skema' => 'Skema KKNI Level II',
-                  'judul' => 'Teknik Komputer Jaringan', 'asesor' => 'Bpk. Hendra Gunawan, S.T.', 'nilai' => '92.5',
-                  'no_reg' => 'BNSP-LSP-2024-09812'],
+    $jadwal ??= collect([
+        (object) ['tanggal' => now(), 'waktu_mulai' => '08:00', 'jenis' => 'Klaster', 'judul' => 'Junior Web Developer',
+                  'bidang' => 'Teknologi Informasi', 'asesor' => 'Bpk. Dr. Ir. Budi Santoso, M.Kom',
+                  'catatan' => 'Wajib hadir 30 menit sebelum sesi dimulai', 'catatan_tone' => 'warning', 'no_registrasi' => 'REG-BNSP-2024-8831'],
+        (object) ['tanggal' => now()->addDays(3), 'waktu_mulai' => '09:30', 'jenis' => 'Okupasi', 'judul' => 'Teknisi Jaringan Komputer Madya',
+                  'bidang' => 'Teknologi Informasi', 'asesor' => 'Bpk. Hendra Gunawan, S.T.',
+                  'catatan' => 'Bawa kartu registrasi dan kartu pelajar.', 'catatan_tone' => 'info', 'no_registrasi' => 'REG-BNSP-2024-8832'],
+        (object) ['tanggal' => now()->addDays(10), 'waktu_mulai' => '13:00', 'jenis' => 'KKNI', 'judul' => 'Desain Grafis Level II',
+                  'bidang' => 'Desain', 'asesor' => 'Ibu Siti Aminah, S.Ds',
+                  'catatan' => 'Siapkan file portofolio karya asli format PDF.', 'catatan_tone' => 'info', 'no_registrasi' => 'REG-BNSP-2024-8833'],
     ]);
     // =========================================================================================================
 
     $a = 'fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"';
     $ic = [
         'monitor' => '<rect width="20" height="14" x="2" y="3" rx="2"/><path d="M8 21h8M12 17v4"/>',
-        'image'   => '<rect width="18" height="18" x="3" y="3" rx="2"/><circle cx="9" cy="9" r="2"/><path d="m21 15-3.1-3.1a2 2 0 0 0-2.8 0L6 21"/>',
         'clock'   => '<circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/>',
-        'pin'     => '<path d="M20 10c0 6-8 12-8 12S4 16 4 10a8 8 0 0 1 16 0z"/><circle cx="12" cy="10" r="3"/>',
         'user'    => '<circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/>',
-        'hash'    => '<path d="M4 9h16M4 15h16M10 3 8 21M16 3l-2 18"/>',
-        'video'   => '<path d="m16 10 5-3v10l-5-3z"/><rect width="14" height="12" x="2" y="6" rx="2"/>',
-        'ext'     => '<path d="M15 3h6v6M10 14 21 3M18 13v6a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h6"/>',
+        'tag'     => '<path d="M12.6 2.6A2 2 0 0 0 11.2 2H4a2 2 0 0 0-2 2v7.2a2 2 0 0 0 .6 1.4l8.7 8.7a2.4 2.4 0 0 0 3.4 0l6.6-6.6a2.4 2.4 0 0 0 0-3.4z"/><circle cx="7.5" cy="7.5" r=".5"/>',
         'warn'    => '<path d="m21.7 18-8-14a2 2 0 0 0-3.4 0l-8 14A2 2 0 0 0 4 21h16a2 2 0 0 0 1.7-3zM12 9v4M12 17h.01"/>',
         'down'    => '<path d="M12 3v12m0 0-4-4m4 4 4-4M4 21h16"/>',
-        'checkc'  => '<circle cx="12" cy="12" r="9"/><path d="m8.5 12.5 2.5 2.5 4.5-5"/>',
         'check'   => '<path d="m5 12.5 4.5 4.5L19 7.5"/>',
         'left'    => '<path d="m15 18-6-6 6-6"/>',
         'right'   => '<path d="m9 18 6-6-6-6"/>',
+        'x'       => '<path d="M18 6 6 18M6 6l12 12"/>',
+        'cal'     => '<rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',
     ];
-    $card  = 'bg-white rounded-2xl border border-slate-200/80 shadow-[0_1px_2px_rgba(15,23,42,.04)]';
-    $btnP  = 'inline-flex items-center justify-center gap-2 rounded-lg bg-[#0b5a49] hover:bg-[#074237] px-5 py-2.5 text-xs font-semibold text-white transition-colors';
-    $tgl   = fn ($d) => Carbon::parse($d)->locale('id');
-    $grup  = $mendatang->sortBy('tanggal')->groupBy(fn ($j) => Carbon::parse($j->tanggal)->format('Y-m'));
-    $events = $mendatang->map(fn ($j) => ['d' => Carbon::parse($j->tanggal)->format('Y-m-d'), 't' => $j->jenis ?? 'offline'])->values();
+    // Warna per jenis skema (dipakai di kartu, kalender, dan pop up)
+    $warna = [
+        'Klaster' => ['icon' => 'border-emerald-100 bg-emerald-50 text-emerald-700', 'badge' => 'border-emerald-200 bg-emerald-50 text-emerald-700', 'bar' => 'bg-emerald-500', 'tgl' => 'text-emerald-700', 'dot' => 'bg-emerald-600', 'fill' => 'bg-emerald-600 text-white hover:bg-emerald-700'],
+        'Okupasi' => ['icon' => 'border-sky-100 bg-sky-50 text-sky-700',             'badge' => 'border-sky-200 bg-sky-50 text-sky-700',             'bar' => 'bg-sky-500',     'tgl' => 'text-sky-700',     'dot' => 'bg-sky-500',     'fill' => 'bg-sky-500 text-white hover:bg-sky-600'],
+        'KKNI'    => ['icon' => 'border-violet-100 bg-violet-50 text-violet-700',    'badge' => 'border-violet-200 bg-violet-50 text-violet-700',    'bar' => 'bg-violet-500',  'tgl' => 'text-violet-700',  'dot' => 'bg-violet-600',  'fill' => 'bg-violet-600 text-white hover:bg-violet-700'],
+    ];
+    $normJenis = fn ($j) => match (strtolower(trim((string) $j))) { 'okupasi' => 'Okupasi', 'kkni' => 'KKNI', default => 'Klaster' };
+
+    $card = 'bg-white rounded-2xl border border-slate-200/80 shadow-[0_1px_2px_rgba(15,23,42,.04)]';
+    $btnP = 'cursor-pointer inline-flex items-center justify-center gap-2 rounded-lg bg-[#0b5a49] hover:bg-[#074237] px-5 py-2.5 text-xs font-semibold text-white transition-colors';
+
+    $jadwal   = collect($jadwal)->filter(fn ($j) => Carbon::parse($j->tanggal)->startOfDay()->gte(today()))->sortBy('tanggal')->values();
+    $hariIni  = $jadwal->filter(fn ($j) => Carbon::parse($j->tanggal)->isToday());
+    $mendatang = $jadwal->reject(fn ($j) => Carbon::parse($j->tanggal)->isToday());
+    $grup     = $jadwal->groupBy(fn ($j) => Carbon::parse($j->tanggal)->format('Y-m'));
+    $tgl      = fn ($d) => Carbon::parse($d)->locale('id');
+    $events   = $jadwal->map(fn ($j) => [
+        'd' => Carbon::parse($j->tanggal)->format('Y-m-d'), 'jenis' => $normJenis($j->jenis ?? null),
+        'judul' => $j->judul, 'waktu' => $j->waktu_mulai ?? null, 'asesor' => $j->asesor ?? null, 'bidang' => $j->bidang ?? null,
+    ])->values();
     $persiapan = [
         'Membawa Kartu Tanda Peserta Ujian fisik / PDF.',
         'Hadir tepat waktu 30 menit sebelum verifikasi data.',
@@ -67,9 +73,13 @@
 <style>
     @keyframes jdIn { from { opacity: 0; transform: translateY(18px); } }
     @keyframes jdFlash { 0%, 100% { box-shadow: 0 0 0 0 rgba(16, 185, 129, 0); } 30% { box-shadow: 0 0 0 5px rgba(16, 185, 129, .35); } }
+    @keyframes jdPop { from { opacity: 0; transform: translateY(12px) scale(.97); } }
+    @keyframes jdFade { from { opacity: 0; } }
     .jd-in { animation: jdIn .7s cubic-bezier(.22, 1, .36, 1) backwards; }
     .jd-flash { animation: jdFlash 1.2s ease; }
-    @media (prefers-reduced-motion: reduce) { .jd-in, .jd-flash { animation: none; } }
+    .jd-pop { animation: jdPop .28s cubic-bezier(.22, 1, .36, 1); }
+    .jd-fade { animation: jdFade .2s ease; }
+    @media (prefers-reduced-motion: reduce) { .jd-in, .jd-flash, .jd-pop, .jd-fade { animation: none; } }
 </style>
 
 <div id="jadwal-page" class="max-w-[1100px]">
@@ -89,9 +99,9 @@
 
     {{-- Tab --}}
     <div class="mt-6 flex flex-wrap gap-2" role="tablist">
-        @foreach ([['mendatang', 'Jadwal Mendatang', $mendatang->count()], ['semua', 'Semua Jadwal', $mendatang->count() + $riwayat->count()], ['riwayat', 'Riwayat Selesai', $riwayat->count()]] as [$key, $lbl, $cnt])
+        @foreach ([['hari', 'Jadwal Hari Ini', $hariIni->count()], ['mendatang', 'Jadwal Mendatang', $mendatang->count()], ['semua', 'Semua Jadwal', $jadwal->count()]] as [$key, $lbl, $cnt])
             <button type="button" role="tab" data-tab="{{ $key }}" aria-selected="{{ $loop->first ? 'true' : 'false' }}"
-                    class="rounded-lg px-3.5 py-1.5 text-[11px] font-semibold bg-slate-200/70 text-slate-600 hover:bg-slate-200 transition-colors aria-selected:bg-[#0b5a49] aria-selected:text-white">{{ $lbl }} ({{ $cnt }})</button>
+                    class="cursor-pointer rounded-lg px-3.5 py-1.5 text-[11px] font-semibold bg-slate-200/70 text-slate-600 hover:bg-slate-200 transition-colors aria-selected:bg-[#0b5a49] aria-selected:text-white">{{ $lbl }} ({{ $cnt }})</button>
         @endforeach
     </div>
     <hr class="mt-5 border-slate-200">
@@ -100,104 +110,74 @@
 
         {{-- ============ Kolom utama ============ --}}
         <div class="min-w-0 space-y-8">
-
-            {{-- Mendatang --}}
-            <section data-sec="mendatang">
-                @forelse ($grup as $bulan => $items)
+            <section data-sec="daftar">
+                @foreach ($grup as $bulan => $items)
                     @php $b = Carbon::createFromFormat('Y-m', $bulan)->locale('id'); @endphp
-                    <div class="flex items-center justify-between {{ $loop->first ? '' : 'mt-8' }}">
-                        <h2 class="text-[11px] font-bold uppercase tracking-wider text-slate-400">{{ $b->isSameMonth(now()) ? 'Bulan Ini' : $b->translatedFormat('F') }}</h2>
-                        <span class="text-xs font-semibold text-[#0b5a49]">{{ $b->translatedFormat('F Y') }}</span>
-                    </div>
-                    <div class="mt-3 space-y-4">
-                        @foreach ($items as $j)
-                            @php $d = $tgl($j->tanggal); $online = ($j->jenis ?? 'offline') === 'online'; $warn = ($j->catatan_tone ?? 'info') === 'warning'; @endphp
-                            <article data-date="{{ $d->format('Y-m-d') }}" class="jd-in {{ $card }} relative overflow-hidden p-5 sm:p-6 transition-shadow hover:shadow-md" style="animation-delay:{{ $n * .1 }}s">
-                                @if ($n === 0)<span class="absolute inset-x-0 top-0 h-[3px] bg-emerald-500"></span>@endif
-                                @php $n++; @endphp
-                                <div class="flex gap-4">
-                                    <span class="shrink-0 w-11 h-11 rounded-xl border border-emerald-100 bg-emerald-50 text-[#0b5a49] grid place-items-center"><svg class="w-5 h-5" {!! $a !!}>{!! $ic[$j->ikon ?? 'monitor'] ?? $ic['monitor'] !!}</svg></span>
-                                    <div class="min-w-0 flex-1">
-                                        <div class="flex flex-wrap items-center gap-2 text-[10px] font-semibold">
-                                            <span class="px-2 py-0.5 rounded border border-emerald-200 bg-emerald-50 text-emerald-700">Mendatang</span>
-                                            <span class="font-medium text-slate-400">{{ $j->skema }}</span>
+                    <div data-month class="{{ $loop->first ? '' : 'mt-8' }}">
+                        <div class="flex items-center justify-between">
+                            <h2 class="text-[11px] font-bold uppercase tracking-wider text-slate-400">{{ $b->isSameMonth(now()) ? 'Bulan Ini' : $b->translatedFormat('F') }}</h2>
+                            <span class="text-xs font-semibold text-[#0b5a49]">{{ $b->translatedFormat('F Y') }}</span>
+                        </div>
+                        <div class="mt-3 space-y-4">
+                            @foreach ($items as $j)
+                                @php
+                                    $d = $tgl($j->tanggal); $isToday = $d->isToday();
+                                    $jn = $normJenis($j->jenis ?? null); $w = $warna[$jn];
+                                    $warn = ($j->catatan_tone ?? 'info') === 'warning';
+                                @endphp
+                                <article data-item data-when="{{ $isToday ? 'hari' : 'mendatang' }}" data-date="{{ $d->format('Y-m-d') }}"
+                                         class="jd-in {{ $card }} relative overflow-hidden p-5 sm:p-6 transition-shadow hover:shadow-md" style="animation-delay:{{ $n++ * .1 }}s">
+                                    <span class="absolute inset-x-0 top-0 h-[3px] {{ $w['bar'] }}"></span>
+                                    <div class="flex gap-4">
+                                        <span class="shrink-0 w-11 h-11 rounded-xl border {{ $w['icon'] }} grid place-items-center"><svg class="w-5 h-5" {!! $a !!}>{!! $ic['monitor'] !!}</svg></span>
+                                        <div class="min-w-0 flex-1">
+                                            <div class="flex flex-wrap items-center gap-2 text-[10px] font-semibold">
+                                                @if ($isToday)
+                                                    <span class="px-2 py-0.5 rounded border border-amber-200 bg-amber-50 text-amber-700">Hari Ini</span>
+                                                @else
+                                                    <span class="px-2 py-0.5 rounded border border-slate-200 bg-slate-50 text-slate-600">Mendatang</span>
+                                                @endif
+                                                <span class="px-2 py-0.5 rounded border {{ $w['badge'] }}">{{ $jn }}</span>
+                                            </div>
+                                            <h3 class="mt-1.5 text-lg sm:text-xl font-bold text-slate-900 leading-snug">{{ $j->judul }}</h3>
+                                            @if (! empty($j->bidang))<p class="text-xs text-slate-500">{{ $j->bidang }}</p>@endif
                                         </div>
-                                        <h3 class="mt-1.5 text-lg sm:text-xl font-bold text-slate-900 leading-snug">{{ $j->judul }}</h3>
-                                        <p class="text-xs text-slate-500">{{ $j->subjudul }}</p>
+                                        <div class="shrink-0 text-right leading-none">
+                                            <p class="text-3xl font-bold {{ $w['tgl'] }}">{{ $d->format('d') }}</p>
+                                            <p class="mt-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">{{ strtoupper($d->translatedFormat('M')) }} {{ $d->format('Y') }}</p>
+                                        </div>
                                     </div>
-                                    <div class="shrink-0 text-right leading-none">
-                                        <p class="text-3xl font-bold text-[#0b5a49]">{{ $d->format('d') }}</p>
-                                        <p class="mt-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">{{ strtoupper($d->translatedFormat('M')) }} {{ $d->format('Y') }}</p>
+
+                                    <div class="mt-5 pt-4 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 text-xs text-slate-600">
+                                        <p class="flex items-center gap-2 font-semibold text-slate-800"><svg class="w-4 h-4 shrink-0 text-slate-400" {!! $a !!}>{!! $ic['clock'] !!}</svg>Mulai {{ $j->waktu_mulai }} WIB</p>
+                                        <p class="flex items-center gap-2"><svg class="w-4 h-4 shrink-0 text-slate-400" {!! $a !!}>{!! $ic['user'] !!}</svg>Asesor: {{ $j->asesor }}</p>
                                     </div>
-                                </div>
 
-                                <div class="mt-5 pt-4 border-t border-slate-100 grid grid-cols-1 sm:grid-cols-2 gap-x-6 gap-y-3 text-xs text-slate-600">
-                                    <p class="flex items-center gap-2 font-semibold text-slate-800"><svg class="w-4 h-4 shrink-0 text-slate-400" {!! $a !!}>{!! $ic['clock'] !!}</svg>{{ $j->jam }}</p>
-                                    @if ($online)
-                                        <a href="{{ $j->link_online ?? '#' }}" target="_blank" rel="noopener" class="flex items-center gap-2 font-semibold text-[#0b5a49] hover:underline"><svg class="w-4 h-4 shrink-0" {!! $a !!}>{!! $ic['video'] !!}</svg>Zoom Meeting Link <svg class="w-3 h-3" {!! $a !!}>{!! $ic['ext'] !!}</svg></a>
-                                    @else
-                                        <p class="flex items-center gap-2"><svg class="w-4 h-4 shrink-0 text-slate-400" {!! $a !!}>{!! $ic['pin'] !!}</svg>{{ $j->lokasi }}</p>
-                                    @endif
-                                    <p class="flex items-center gap-2"><svg class="w-4 h-4 shrink-0 text-slate-400" {!! $a !!}>{!! $ic['user'] !!}</svg>{{ $online ? 'Asesor Penguji' : 'Asesor' }}: {{ $j->asesor }}</p>
-                                    @if (! empty($j->penempatan))
-                                        <p class="flex items-center gap-2"><svg class="w-4 h-4 shrink-0 text-slate-400" {!! $a !!}>{!! $ic['hash'] !!}</svg>Penempatan: {{ $j->penempatan }}</p>
-                                    @endif
-                                </div>
-
-                                <div class="mt-4 pt-4 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
-                                    @if ($warn)
-                                        <p class="flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-[11px] font-semibold text-amber-800 sm:max-w-[16rem]"><svg class="w-4 h-4 shrink-0 text-amber-500" {!! $a !!}>{!! $ic['warn'] !!}</svg>{{ $j->catatan }}</p>
-                                    @else
-                                        <p class="text-[11px] text-slate-400 sm:max-w-[16rem]">{{ $j->catatan }}</p>
-                                    @endif
-                                    <a href="{{ $j->url_kartu ?? '#' }}" class="{{ $btnP }} sm:w-36 text-center"><svg class="w-3.5 h-3.5 shrink-0" {!! $a !!}>{!! $ic['down'] !!}</svg>Unduh Kartu Ujian</a>
-                                </div>
-                            </article>
-                        @endforeach
+                                    <div class="mt-4 pt-4 border-t border-slate-100 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3">
+                                        @if (! empty($j->catatan))
+                                            @if ($warn)
+                                                <p class="flex items-center gap-2 rounded-lg border border-amber-200 bg-amber-50 px-3 py-2 text-[11px] font-semibold text-amber-800 sm:max-w-[16rem]"><svg class="w-4 h-4 shrink-0 text-amber-500" {!! $a !!}>{!! $ic['warn'] !!}</svg>{{ $j->catatan }}</p>
+                                            @else
+                                                <p class="text-[11px] text-slate-400 sm:max-w-[16rem]">{{ $j->catatan }}</p>
+                                            @endif
+                                        @else
+                                            <span></span>
+                                        @endif
+                                        <button type="button" data-unduh-kartu data-filename="Kartu-Registrasi-{{ $j->no_registrasi ?? 'Asesi' }}" class="{{ $btnP }} sm:w-52 text-center"><svg class="w-3.5 h-3.5 shrink-0" {!! $a !!}>{!! $ic['down'] !!}</svg>Unduh Kartu Registrasi</button>
+                                        <div data-kartu-src class="hidden" aria-hidden="true">
+                                            @include('asesi.skema._kartu-registrasi', [
+                                                'nama'  => $j->nama_asesi ?? auth()->user()?->name ?? 'Nama Asesi',
+                                                'skema' => $j->judul,
+                                                'noReg' => $j->no_registrasi ?? '-',
+                                            ])
+                                        </div>
+                                    </div>
+                                </article>
+                            @endforeach
+                        </div>
                     </div>
-                @empty
-                    <div class="rounded-xl border border-dashed border-slate-300 px-4 py-10 text-center text-xs text-slate-500">Belum ada jadwal asesmen mendatang.</div>
-                @endforelse
-            </section>
-
-            {{-- Riwayat --}}
-            <section data-sec="riwayat" class="jd-in" style="animation-delay:.25s">
-                <div class="flex items-center justify-between">
-                    <h2 class="text-[11px] font-bold uppercase tracking-wider text-slate-500">Riwayat Asesmen</h2>
-                    <span class="text-[11px] text-slate-400">{{ $riwayat->count() }} Sesi Selesai</span>
-                </div>
-                <div class="mt-3 space-y-4">
-                    @forelse ($riwayat as $r)
-                        @php $d = $tgl($r->tanggal); @endphp
-                        <article class="{{ $card }} p-5 sm:p-6">
-                            <div class="flex gap-4">
-                                <span class="shrink-0 w-11 h-11 rounded-xl bg-blue-50 text-blue-600 grid place-items-center"><svg class="w-5 h-5" {!! $a !!}>{!! $ic['checkc'] !!}</svg></span>
-                                <div class="min-w-0 flex-1">
-                                    <div class="flex flex-wrap items-center gap-2 text-[10px] font-semibold">
-                                        <span class="px-2 py-0.5 rounded bg-slate-100 text-slate-600">Selesai</span>
-                                        <span class="px-2 py-0.5 rounded bg-emerald-100 text-emerald-800">{{ $r->hasil }}</span>
-                                        <span class="font-medium text-slate-400">{{ $r->skema }}</span>
-                                    </div>
-                                    <h3 class="mt-1.5 text-lg font-bold text-slate-900">{{ $r->judul }}</h3>
-                                    <p class="text-xs text-slate-500">Asesor: {{ $r->asesor }} • Nilai: {{ $r->nilai }}</p>
-                                </div>
-                                <div class="shrink-0 text-right leading-none">
-                                    <p class="text-2xl font-bold text-slate-400">{{ $d->format('d') }}</p>
-                                    <p class="mt-1 text-[10px] font-semibold uppercase tracking-wider text-slate-400">{{ strtoupper($d->translatedFormat('M')) }} {{ $d->format('Y') }}</p>
-                                </div>
-                            </div>
-                            <div class="mt-4 pt-3 border-t border-slate-100 flex flex-wrap items-center justify-between gap-2 text-xs">
-                                <span class="font-mono text-[10px] text-slate-400">No. Reg: {{ $r->no_reg }}</span>
-                                <span class="flex items-center gap-4 font-semibold text-[#0b5a49]">
-                                    <a href="{{ $r->url_hasil ?? '#' }}" class="hover:underline">Lihat Hasil Penilaian</a>
-                                    <a href="{{ $r->url_sertifikat ?? '#' }}" class="hover:underline">Unduh Sertifikat →</a>
-                                </span>
-                            </div>
-                        </article>
-                    @empty
-                        <div class="rounded-xl border border-dashed border-slate-300 px-4 py-8 text-center text-xs text-slate-500">Belum ada riwayat asesmen.</div>
-                    @endforelse
-                </div>
+                @endforeach
+                <div data-empty class="{{ $jadwal->isEmpty() ? '' : 'hidden' }} rounded-xl border border-dashed border-slate-300 px-4 py-10 text-center text-xs text-slate-500">Belum ada jadwal asesmen.</div>
             </section>
         </div>
 
@@ -207,8 +187,8 @@
                 <div class="flex items-center justify-between">
                     <h2 data-cal-title class="text-sm font-bold text-slate-900"></h2>
                     <div class="flex gap-1">
-                        <button type="button" data-cal-prev aria-label="Bulan sebelumnya" class="w-7 h-7 rounded-lg grid place-items-center text-slate-500 hover:bg-slate-100"><svg class="w-4 h-4" {!! $a !!}>{!! $ic['left'] !!}</svg></button>
-                        <button type="button" data-cal-next aria-label="Bulan berikutnya" class="w-7 h-7 rounded-lg grid place-items-center text-slate-500 hover:bg-slate-100"><svg class="w-4 h-4" {!! $a !!}>{!! $ic['right'] !!}</svg></button>
+                        <button type="button" data-cal-prev aria-label="Bulan sebelumnya" class="cursor-pointer w-7 h-7 rounded-lg grid place-items-center text-slate-500 hover:bg-slate-100"><svg class="w-4 h-4" {!! $a !!}>{!! $ic['left'] !!}</svg></button>
+                        <button type="button" data-cal-next aria-label="Bulan berikutnya" class="cursor-pointer w-7 h-7 rounded-lg grid place-items-center text-slate-500 hover:bg-slate-100"><svg class="w-4 h-4" {!! $a !!}>{!! $ic['right'] !!}</svg></button>
                     </div>
                 </div>
                 <div class="mt-4 grid grid-cols-7 text-center text-[10px] font-semibold text-slate-400">
@@ -216,8 +196,9 @@
                 </div>
                 <div data-cal-grid class="mt-2 grid grid-cols-7 gap-y-1.5 text-center"></div>
                 <div class="mt-4 pt-4 border-t border-slate-100 space-y-2 text-[11px] text-slate-600">
-                    <p class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full bg-[#0b5a49]"></span>Jadwal Anda (TUK Lab Fisik)</p>
-                    <p class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full border-2 border-emerald-500"></span>Asesmen Online / Wawancara Zoom</p>
+                    @foreach ($warna as $nama => $w)
+                        <p class="flex items-center gap-2"><span class="w-2.5 h-2.5 rounded-full {{ $w['dot'] }}"></span>{{ $nama }}</p>
+                    @endforeach
                 </div>
             </div>
 
@@ -229,9 +210,24 @@
                         <li class="flex gap-2.5 text-xs text-slate-700 leading-relaxed"><svg class="w-4 h-4 shrink-0 mt-0.5 text-emerald-600" stroke-width="2.4" {!! $a !!}>{!! $ic['check'] !!}</svg>{{ $p }}</li>
                     @endforeach
                 </ul>
-                <a href="{{ route('placeholder', ['title' => 'Panduan BNSP']) }}" class="mt-4 inline-block text-xs font-semibold text-[#0b5a49] hover:underline">Pelajari Panduan Lengkap BNSP ›</a>
             </div>
         </aside>
+    </div>
+
+    {{-- ============ Pop up agenda per tanggal ============ --}}
+    <div id="agenda-modal" class="hidden fixed inset-0 z-50 items-center justify-center p-4" role="dialog" aria-modal="true" aria-labelledby="agenda-title">
+        <div data-close class="jd-fade absolute inset-0 bg-slate-900/50 backdrop-blur-[2px]"></div>
+        <div class="jd-pop relative w-full max-w-md max-h-[85vh] overflow-y-auto rounded-2xl bg-white shadow-2xl border border-slate-200">
+            <div class="flex items-start justify-between gap-3 px-5 pt-5">
+                <div>
+                    <p class="text-[10px] font-bold uppercase tracking-wider text-slate-400">Agenda Asesmen</p>
+                    <h2 id="agenda-title" class="mt-0.5 text-base font-bold text-slate-900"></h2>
+                </div>
+                <button type="button" data-close aria-label="Tutup" class="cursor-pointer shrink-0 w-8 h-8 rounded-lg grid place-items-center text-slate-500 hover:bg-slate-100"><svg class="w-4 h-4" {!! $a !!}>{!! $ic['x'] !!}</svg></button>
+            </div>
+            <div id="agenda-body" class="px-5 py-4 space-y-3"></div>
+            <div class="px-5 pb-5"><button type="button" data-close class="cursor-pointer w-full rounded-lg border border-slate-200 bg-white hover:bg-slate-50 px-4 py-2 text-xs font-semibold text-slate-700 transition-colors">Tutup</button></div>
+        </div>
     </div>
 </div>
 
@@ -247,28 +243,96 @@
         const tick = () => { const d = new Date(); today.textContent = `${H[d.getDay()]}, ${String(d.getDate()).padStart(2, '0')} ${B[d.getMonth()]} ${d.getFullYear()}`; };
         tick(); setInterval(tick, 30000);
 
-        // Tab
+        // Tab: hari ini | mendatang | semua
         const tabs = [...root.querySelectorAll('[data-tab]')];
-        const secs = [...root.querySelectorAll('[data-sec]')];
+        const items = [...root.querySelectorAll('[data-item]')];
+        const months = [...root.querySelectorAll('[data-month]')];
+        const empty = root.querySelector('[data-empty]');
+        const pesan = { hari: 'Tidak ada jadwal asesmen hari ini.', mendatang: 'Belum ada jadwal asesmen mendatang.', semua: 'Belum ada jadwal asesmen.' };
         const show = (t) => {
             tabs.forEach((b) => b.setAttribute('aria-selected', b.dataset.tab === t ? 'true' : 'false'));
-            secs.forEach((s) => {
-                const on = t === 'semua' || s.dataset.sec === t;
-                s.classList.toggle('hidden', !on);
-                if (on) { s.classList.remove('jd-in'); void s.offsetWidth; s.classList.add('jd-in'); }
+            let total = 0;
+            items.forEach((a) => {
+                const on = t === 'semua' || a.dataset.when === t;
+                a.classList.toggle('hidden', !on);
+                if (on) { total++; a.classList.remove('jd-in'); void a.offsetWidth; a.classList.add('jd-in'); }
             });
+            months.forEach((m) => m.classList.toggle('hidden', !m.querySelector('[data-item]:not(.hidden)')));
+            empty.textContent = pesan[t];
+            empty.classList.toggle('hidden', total > 0);
         };
         tabs.forEach((b) => b.addEventListener('click', () => show(b.dataset.tab)));
+        show('hari');
 
-        // Kalender (bulan berjalan, bisa dinavigasi)
+
+        // Unduh Kartu Registrasi: kartu (SVG) diubah ke gambar PNG di browser lalu diunduh (sama seperti halaman skema)
+        root.querySelectorAll('[data-unduh-kartu]').forEach((btn) => btn.addEventListener('click', () => {
+            const src = btn.closest('article')?.querySelector('[data-kartu-src] svg');
+            if (!src) return;
+            const W = 1920, H = 1200;
+            const svg = src.cloneNode(true);
+            svg.setAttribute('width', W); svg.setAttribute('height', H);
+            const img = new Image();
+            img.onload = () => {
+                const c = document.createElement('canvas'); c.width = W; c.height = H;
+                c.getContext('2d').drawImage(img, 0, 0, W, H);
+                c.toBlob((blob) => {
+                    const a = document.createElement('a');
+                    a.href = URL.createObjectURL(blob);
+                    a.download = (btn.dataset.filename || 'Kartu-Registrasi') + '.png';
+                    document.body.appendChild(a); a.click(); a.remove();
+                    setTimeout(() => URL.revokeObjectURL(a.href), 1000);
+                }, 'image/png');
+            };
+            img.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(new XMLSerializer().serializeToString(svg));
+        }));
+        // Kalender
         const EV = @json($events);
-        const map = Object.fromEntries(EV.map((e) => [e.d, e.t]));
+        const W  = @json($warna);
+        const byDay = {};
+        EV.forEach((e) => { (byDay[e.d] = byDay[e.d] || []).push(e); });
         const BULAN = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
         const title = root.querySelector('[data-cal-title]');
         const grid = root.querySelector('[data-cal-grid]');
         const pad = (n) => String(n).padStart(2, '0');
         const key = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
         let cur = new Date(); cur = new Date(cur.getFullYear(), cur.getMonth(), 1);
+
+        // Pop up
+        const modal = document.getElementById('agenda-modal');
+        const mTitle = document.getElementById('agenda-title');
+        const mBody = document.getElementById('agenda-body');
+        let lastFocus = null;
+        const el = (tag, cls, text) => { const n = document.createElement(tag); if (cls) n.className = cls; if (text != null) n.textContent = text; return n; };
+        const open = (d) => {
+            const list = (byDay[key(d)] || []).slice().sort((x, y) => String(x.waktu).localeCompare(String(y.waktu)));
+            mTitle.textContent = d.toLocaleDateString('id-ID', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
+            mBody.innerHTML = '';
+            if (!list.length) {
+                mBody.appendChild(el('div', 'rounded-xl border border-dashed border-slate-300 px-4 py-8 text-center text-xs text-slate-500', 'Tidak ada agenda asesmen pada tanggal ini.'));
+            }
+            list.forEach((e) => {
+                const w = W[e.jenis] || W.Klaster;
+                const row = el('div', 'flex gap-3 rounded-xl border border-slate-200 p-3.5');
+                row.appendChild(el('span', 'shrink-0 self-start rounded-lg px-2.5 py-1.5 text-xs font-bold text-white ' + w.dot, e.waktu || '-'));
+                const info = el('div', 'min-w-0 flex-1');
+                info.appendChild(el('span', 'inline-block px-2 py-0.5 rounded border text-[10px] font-semibold ' + w.badge, e.jenis));
+                info.appendChild(el('p', 'mt-1.5 text-sm font-bold text-slate-900 leading-snug', e.judul));
+                if (e.bidang) info.appendChild(el('p', 'text-[11px] text-slate-500', e.bidang));
+                if (e.asesor) info.appendChild(el('p', 'mt-1.5 text-[11px] text-slate-600', 'Asesor: ' + e.asesor));
+                row.appendChild(info);
+                mBody.appendChild(row);
+            });
+            lastFocus = document.activeElement;
+            modal.classList.remove('hidden'); modal.classList.add('flex');
+            modal.querySelector('button[data-close]').focus();
+        };
+        const close = () => {
+            modal.classList.add('hidden'); modal.classList.remove('flex');
+            if (lastFocus && lastFocus.focus) lastFocus.focus();
+        };
+        modal.querySelectorAll('[data-close]').forEach((x) => x.addEventListener('click', close));
+        document.addEventListener('keydown', (e) => { if (e.key === 'Escape' && !modal.classList.contains('hidden')) close(); });
 
         function draw() {
             title.textContent = `${BULAN[cur.getMonth()]} ${cur.getFullYear()}`;
@@ -278,25 +342,19 @@
             for (let i = 0; i < 42; i++) {
                 const d = new Date(start); d.setDate(start.getDate() + i);
                 if (i === 35 && d.getMonth() !== cur.getMonth()) break;
-                const k = key(d), t = map[k], out = d.getMonth() !== cur.getMonth();
-                const el = document.createElement(t ? 'button' : 'span');
-                el.textContent = d.getDate();
-                let cls = 'w-9 h-9 mx-auto grid place-items-center rounded-lg text-xs ';
-                if (t === 'online') cls += 'border-2 border-emerald-500 text-emerald-700 font-semibold';
-                else if (t) cls += 'bg-[#0b5a49] text-white font-semibold';
-                else if (k === todayKey) cls += 'font-bold text-emerald-700';
-                else cls += out ? 'text-slate-300' : 'text-slate-600';
-                el.className = cls;
-                if (t) {
-                    el.type = 'button';
-                    el.addEventListener('click', () => {
-                        const card = root.querySelector(`[data-date="${k}"]`);
-                        if (!card || card.offsetParent === null) return;
-                        card.scrollIntoView({ behavior: 'smooth', block: 'center' });
-                        card.classList.remove('jd-flash'); void card.offsetWidth; card.classList.add('jd-flash');
-                    });
-                }
-                grid.appendChild(el);
+                const k = key(d), evs = byDay[k], out = d.getMonth() !== cur.getMonth();
+                const b = document.createElement('button');
+                b.type = 'button';
+                b.textContent = d.getDate();
+                b.setAttribute('aria-label', d.toLocaleDateString('id-ID', { day: 'numeric', month: 'long', year: 'numeric' }) + (evs ? `, ${evs.length} agenda` : ', tidak ada agenda'));
+                let cls = 'cursor-pointer relative w-9 h-9 mx-auto grid place-items-center rounded-lg text-xs transition-colors ';
+                if (evs) cls += (W[evs[0].jenis] || W.Klaster).fill + ' font-semibold';
+                else if (k === todayKey) cls += 'font-bold text-emerald-700 ring-2 ring-emerald-200 hover:bg-emerald-50';
+                else cls += (out ? 'text-slate-300' : 'text-slate-600') + ' hover:bg-slate-100';
+                b.className = cls;
+                if (evs && evs.length > 1) b.appendChild(el('span', 'absolute -top-1 -right-1 min-w-[14px] h-[14px] px-0.5 rounded-full bg-white border border-slate-300 text-slate-700 text-[9px] font-bold leading-[12px]', evs.length));
+                b.addEventListener('click', () => open(new Date(d)));
+                grid.appendChild(b);
             }
         }
         root.querySelector('[data-cal-prev]').addEventListener('click', () => { cur = new Date(cur.getFullYear(), cur.getMonth() - 1, 1); draw(); });

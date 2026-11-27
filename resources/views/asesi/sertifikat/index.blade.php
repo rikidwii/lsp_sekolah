@@ -10,7 +10,6 @@
 
     $aktif    = $sertifikat->where('aktif', true);
     $nonaktif = $sertifikat->where('aktif', false);
-    $tahunList = $sertifikat->map(fn ($s) => $c($s->tanggal_terbit)->year)->unique()->sortDesc()->values();
     $thnAktif    = $aktif->whereNotNull('berlaku_sampai')->isNotEmpty() ? $c($aktif->max('berlaku_sampai'))->year : null;
     $thnNonaktif = $nonaktif->whereNotNull('berlaku_sampai')->isNotEmpty() ? $c($nonaktif->max('berlaku_sampai'))->year : null;
 
@@ -28,6 +27,7 @@
         'qr'      => '<rect width="5" height="5" x="3" y="3" rx="1"/><rect width="5" height="5" x="16" y="3" rx="1"/><rect width="5" height="5" x="3" y="16" rx="1"/><path d="M21 16h-3a2 2 0 0 0-2 2v3M21 21v.01M12 7v3a2 2 0 0 1-2 2H7M3 12h.01M12 3h.01M12 16v.01M16 12h1M21 12v.01M12 21v-3"/>',
         'sync'    => '<path d="M3 12a9 9 0 0 1 15-6.7L21 8M21 3v5h-5M21 12a9 9 0 0 1-15 6.7L3 16M3 21v-5h5"/>',
         'clock'   => '<circle cx="12" cy="12" r="10"/><path d="M12 6v6l4 2"/>',
+        'cal'     => '<rect width="18" height="18" x="3" y="4" rx="2"/><path d="M16 2v4M8 2v4M3 10h18"/>',
     ];
     $tones = [
         ['bg' => 'from-emerald-100/90 via-teal-50 to-amber-100/80',   'outer' => 'border-emerald-300/90', 'inner' => 'border-amber-300/90', 'line' => 'border-emerald-200', 'ring' => 'border-amber-300 bg-gradient-to-br from-amber-100 to-yellow-50 text-amber-800',   'seal' => 'bnsp'],
@@ -64,14 +64,29 @@
             <h1 class="mt-2.5 text-3xl sm:text-4xl font-bold bg-gradient-to-r from-slate-900 via-[#095446] to-teal-800 bg-clip-text text-transparent tracking-tight">Sertifikat Saya</h1>
             <p class="mt-2 max-w-lg text-[15px] leading-relaxed text-slate-600">Kelola, verifikasi keaslian, dan unduh sertifikat kompetensi berlisensi BNSP yang telah Anda raih.</p>
         </div>
-        <label class="relative shrink-0 self-start">
-            <span class="sr-only">Filter tahun</span>
-            <select id="sk-tahun" class="appearance-none rounded-2xl border border-emerald-200/90 bg-white py-3 pl-5 pr-12 text-sm font-semibold text-slate-800 shadow-sm transition-colors hover:border-[#095446] focus:outline-none focus:border-[#0b5a49] focus:ring-2 focus:ring-emerald-100 cursor-pointer">
-                <option value="">Semua Tahun</option>
-                @foreach ($tahunList as $th)<option value="{{ $th }}">{{ $th }}</option>@endforeach
-            </select>
-            <svg class="w-4 h-4 text-[#095446] absolute right-4 top-1/2 -translate-y-1/2 pointer-events-none" {!! $a !!}>{!! $ic['chevron'] !!}</svg>
-        </label>
+        {{-- Filter rentang tanggal terbit: ikon kalender, klik untuk memilih tanggal mulai s/d selesai --}}
+        <div class="relative shrink-0 self-start" data-range>
+            <input type="hidden" data-from><input type="hidden" data-to>
+            <button type="button" data-range-btn aria-haspopup="dialog" aria-expanded="false" title="Filter rentang tanggal terbit"
+                    class="relative grid h-12 w-12 cursor-pointer place-items-center rounded-2xl border border-emerald-200/90 bg-white text-[#095446] shadow-sm transition-colors hover:border-[#095446] hover:bg-emerald-50/50 focus:outline-none focus:ring-2 focus:ring-emerald-100 data-[active=true]:border-[#0b5a49] data-[active=true]:bg-emerald-50">
+                <svg class="w-5 h-5" {!! $a !!}>{!! $ic['cal'] !!}</svg>
+                <span data-range-dot class="hidden absolute -top-1 -right-1 h-3 w-3 rounded-full bg-[#0b5a49] ring-2 ring-white"></span>
+            </button>
+            <div data-range-pop role="dialog" aria-label="Pilih rentang tanggal terbit" class="hidden absolute right-0 top-full z-30 mt-2 w-[288px] rounded-2xl border border-slate-200 bg-white p-4 shadow-[0_12px_32px_rgba(15,23,42,.16)]">
+                <div class="flex items-center justify-between">
+                    <button type="button" data-rp-prev aria-label="Bulan sebelumnya" class="grid h-7 w-7 cursor-pointer place-items-center rounded-lg text-slate-500 hover:bg-slate-100"><svg class="w-4 h-4" {!! $a !!}><path d="m15 18-6-6 6-6"/></svg></button>
+                    <p data-rp-title class="text-sm font-bold text-slate-900"></p>
+                    <button type="button" data-rp-next aria-label="Bulan berikutnya" class="grid h-7 w-7 cursor-pointer place-items-center rounded-lg text-slate-500 hover:bg-slate-100"><svg class="w-4 h-4" {!! $a !!}><path d="m9 18 6-6-6-6"/></svg></button>
+                </div>
+                <div class="mt-3 grid grid-cols-7 text-center text-[10px] font-semibold text-slate-400">@foreach (['MIN', 'SEN', 'SEL', 'RAB', 'KAM', 'JUM', 'SAB'] as $hh)<span>{{ $hh }}</span>@endforeach</div>
+                <div data-rp-grid class="mt-1.5 grid grid-cols-7 gap-y-1"></div>
+                <p data-rp-label class="mt-3 border-t border-slate-100 pt-3 text-center text-[11px] font-semibold text-slate-600">Pilih tanggal mulai</p>
+                <div class="mt-3 flex gap-2">
+                    <button type="button" data-rp-reset class="flex-1 cursor-pointer rounded-lg border border-slate-200 bg-white px-3 py-2 text-xs font-semibold text-slate-700 transition-colors hover:bg-slate-50">Reset</button>
+                    <button type="button" data-rp-apply class="flex-1 cursor-pointer rounded-lg bg-[#0b5a49] px-3 py-2 text-xs font-semibold text-white transition-colors hover:bg-[#074237]">Terapkan</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     {{-- Ringkasan --}}
@@ -113,7 +128,7 @@
                 $demo = (bool) ($s->demo ?? false);
                 $tipe = $s->tipe_berkas ?? null;
             @endphp
-            <article data-card data-status="{{ $s->aktif ? 'aktif' : 'kedaluwarsa' }}" data-tahun="{{ $terbit->year }}"
+            <article data-card data-status="{{ $s->aktif ? 'aktif' : 'kedaluwarsa' }}" data-date="{{ $terbit->format('Y-m-d') }}"
                      data-judul="{{ $s->nama }}" data-tipe="{{ $tipe }}" data-lihat="{{ $s->lihat_url }}" data-unduh="{{ $s->download_url }}" data-demo="{{ $demo ? '1' : '' }}"
                      class="sk-in overflow-hidden rounded-3xl border border-slate-200/80 bg-white shadow-[0_2px_10px_rgba(15,23,42,.04)] transition-all duration-300 hover:-translate-y-1 hover:border-emerald-300/80 hover:shadow-[0_16px_32px_rgba(9,84,70,.12)]"
                      style="animation-delay:{{ min($loop->index, 5) * 0.08 }}s">
@@ -183,7 +198,7 @@
         @endforeach
     </div>
 
-    <div id="sk-kosong" class="hidden mt-6 rounded-2xl border border-dashed border-slate-300 bg-white px-4 py-12 text-center text-sm text-slate-500">Tidak ada sertifikat pada kategori atau tahun yang dipilih.</div>
+    <div id="sk-kosong" class="hidden mt-6 rounded-2xl border border-dashed border-slate-300 bg-white px-4 py-12 text-center text-sm text-slate-500">Tidak ada sertifikat pada kategori atau rentang tanggal yang dipilih.</div>
 
     {{-- Info bawah --}}
     <div class="mt-8 grid grid-cols-1 lg:grid-cols-[minmax(0,1fr)_330px] gap-6 items-stretch">
@@ -224,7 +239,8 @@
     if (!root) return;
     const $  = (s, c = root) => c.querySelector(s);
     const $$ = (s, c = root) => [...c.querySelectorAll(s)];
-    const cards = $$('[data-card]'), tabs = $$('[data-tab]'), tahun = $('#sk-tahun');
+    const cards = $$('[data-card]'), tabs = $$('[data-tab]');
+    const from = $('[data-from]'), to = $('[data-to]');
     let tab = 'aktif';
 
     const toast = (t) => {
@@ -234,10 +250,10 @@
 
     /* ---------- Tab + filter tahun ---------- */
     const apply = () => {
-        const th = tahun.value, cnt = { aktif: 0, kedaluwarsa: 0 };
+        const cnt = { aktif: 0, kedaluwarsa: 0 };
         let shown = 0;
         cards.forEach((c) => {
-            const okTahun = !th || c.dataset.tahun === th;
+            const okTahun = (!from.value || c.dataset.date >= from.value) && (!to.value || c.dataset.date <= to.value);
             if (okTahun) cnt[c.dataset.status]++;
             const on = okTahun && c.dataset.status === tab;
             c.classList.toggle('hidden', !on);
@@ -251,7 +267,59 @@
         tabs.forEach((x) => x.setAttribute('aria-selected', x === b ? 'true' : 'false'));
         apply();
     }));
-    tahun.addEventListener('change', apply);
+    /* ---------- Kalender rentang tanggal terbit ---------- */
+    const rng = $('[data-range]'), btn = $('[data-range-btn]', rng), pop = $('[data-range-pop]', rng);
+    const rpTitle = $('[data-rp-title]', pop), rpGrid = $('[data-rp-grid]', pop), rpLabel = $('[data-rp-label]', pop);
+    const BLN = ['Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni', 'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'];
+    const pad = (n) => String(n).padStart(2, '0');
+    const kunci = (d) => `${d.getFullYear()}-${pad(d.getMonth() + 1)}-${pad(d.getDate())}`;
+    const fmt = (k) => { const [y, m, d] = k.split('-'); return `${+d} ${BLN[m - 1].slice(0, 3)} ${y}`; };
+    let st = '', en = '', view = new Date(); view = new Date(view.getFullYear(), view.getMonth(), 1);
+
+    const label = () => { rpLabel.textContent = !st ? 'Pilih tanggal mulai' : !en ? `${fmt(st)} – pilih tanggal akhir` : (st === en ? fmt(st) : `${fmt(st)} – ${fmt(en)}`); };
+    const gambar = () => {
+        rpTitle.textContent = `${BLN[view.getMonth()]} ${view.getFullYear()}`;
+        rpGrid.innerHTML = '';
+        const start = new Date(view); start.setDate(1 - view.getDay());
+        for (let i = 0; i < 42; i++) {
+            const d = new Date(start); d.setDate(start.getDate() + i);
+            if (i === 35 && d.getMonth() !== view.getMonth()) break;
+            const k = kunci(d), luar = d.getMonth() !== view.getMonth();
+            const ujung = k === st || k === en, tengah = st && en && k > st && k < en;
+            const b = document.createElement('button');
+            b.type = 'button'; b.textContent = d.getDate();
+            b.className = 'cursor-pointer h-8 text-xs transition-colors ' + (ujung ? 'bg-[#0b5a49] text-white font-bold rounded-lg' : tengah ? 'bg-emerald-100 text-emerald-900 font-semibold' : (luar ? 'text-slate-300 hover:bg-slate-100 rounded-lg' : 'text-slate-700 hover:bg-slate-100 rounded-lg'));
+            if (k === st && en && st !== en) b.classList.add('rounded-r-none');
+            if (k === en && st !== en) b.classList.add('rounded-l-none');
+            b.addEventListener('click', () => {
+                if (!st || (st && en)) { st = k; en = ''; }
+                else if (k < st) { st = k; }
+                else { en = k; }
+                label(); gambar();
+            });
+            rpGrid.appendChild(b);
+        }
+    };
+    const terapkan = () => {
+        from.value = st; to.value = st ? (en || st) : '';
+        btn.dataset.active = st ? 'true' : 'false';
+        $('[data-range-dot]', btn).classList.toggle('hidden', !st);
+        btn.title = st ? `Tanggal terbit: ${fmt(from.value)}${from.value !== to.value ? ' – ' + fmt(to.value) : ''}` : 'Filter rentang tanggal terbit';
+        apply();
+    };
+    const tutupRange = () => { pop.classList.add('hidden'); btn.setAttribute('aria-expanded', 'false'); };
+    btn.addEventListener('click', () => {
+        const buka = pop.classList.contains('hidden');
+        pop.classList.toggle('hidden', !buka); btn.setAttribute('aria-expanded', String(buka));
+        if (buka) { st = from.value; en = to.value; if (st) { const [y, m] = st.split('-'); view = new Date(+y, m - 1, 1); } label(); gambar(); }
+    });
+    $('[data-rp-prev]', pop).addEventListener('click', () => { view = new Date(view.getFullYear(), view.getMonth() - 1, 1); gambar(); });
+    $('[data-rp-next]', pop).addEventListener('click', () => { view = new Date(view.getFullYear(), view.getMonth() + 1, 1); gambar(); });
+    $('[data-rp-reset]', pop).addEventListener('click', () => { st = ''; en = ''; terapkan(); label(); gambar(); tutupRange(); });
+    $('[data-rp-apply]', pop).addEventListener('click', () => { terapkan(); tutupRange(); });
+    pop.addEventListener('click', (e) => e.stopPropagation());   // grid digambar ulang saat klik; jangan dianggap klik di luar
+    document.addEventListener('click', (e) => { if (!rng.contains(e.target)) tutupRange(); });
+    document.addEventListener('keydown', (e) => { if (e.key === 'Escape') tutupRange(); });
 
     /* ---------- Unduh: otomatis mengunduh (atribut download); mode demo hanya notifikasi ---------- */
     $$('[data-dl]').forEach((a) => a.addEventListener('click', (e) => {

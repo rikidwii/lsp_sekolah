@@ -4,7 +4,7 @@
   halaman memakai DATA DUMMY di bawah. Setelah controller mengirimnya, dummy otomatis tidak dipakai.
 
   $skemaAktif : 1 objek/model atau null
-      kode, jenis (Klaster|Okupasi|KKNI, sesuai pilihan admin), lsp, nama, deskripsi, status_proses, no_registrasi,
+      kode, jenis (Klaster|Okupasi|KKNI, sesuai pilihan admin), nama, deskripsi, status_proses, no_registrasi,
       tanggal_daftar, waktu_mulai (mis. "08:00 WIB"), tanggal_pelaksanaan, asesor, tahap (1-4),
       pesan, url_silabus (file opsional dari admin; null = tombol nonaktif), nama_asesi (opsional; default nama user login)
   $riwayat    : koleksi (skema lulus)
@@ -18,7 +18,7 @@
 @php
     // ===================== DATA DUMMY (hapus blok ini bila backend sudah mengirim data) =====================
     $skemaAktif ??= (object) [
-        'kode' => 'JWD-001', 'jenis' => 'Klaster', 'lsp' => 'LSP-P1 SMK',
+        'kode' => 'JWD-001', 'jenis' => 'Klaster',
         'nama' => 'Junior Web Developer',
         'deskripsi' => 'Skema uji sertifikasi kompetensi pengembangan front-end & back-end dasar sesuai Standar Kompetensi Kerja Nasional Indonesia (SKKNI Kemnaker).',
         'status_proses' => 'Asesmen Berlangsung', 'no_registrasi' => 'REG-BNSP-2024-8831',
@@ -57,9 +57,9 @@
     ];
     $fmt  = fn ($d) => $d instanceof \Carbon\CarbonInterface ? $d->locale('id')->translatedFormat('d M Y') : $d;
     $card = 'bg-white rounded-2xl border border-slate-200/80 shadow-[0_1px_2px_rgba(15,23,42,.04)]';
-    $btnP = 'inline-flex items-center justify-center gap-2 rounded-lg bg-[#0b5a49] hover:bg-[#074237] px-4 py-2 text-xs font-semibold text-white transition-colors';
-    $btnO = 'inline-flex items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 px-4 py-2 text-xs font-semibold text-slate-800 transition-colors';
-    $btnS = 'inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-slate-100 hover:bg-slate-200 px-5 py-2.5 text-[13px] font-semibold text-slate-800 transition-colors';
+    $btnP = 'cursor-pointer inline-flex items-center justify-center gap-2 rounded-lg bg-[#0b5a49] hover:bg-[#074237] px-4 py-2 text-xs font-semibold text-white transition-colors';
+    $btnO = 'cursor-pointer inline-flex items-center justify-center gap-2 rounded-lg border border-slate-200 bg-white hover:bg-slate-50 px-4 py-2 text-xs font-semibold text-slate-800 transition-colors';
+    $btnS = 'cursor-pointer inline-flex items-center justify-center gap-2 rounded-xl border border-slate-200 bg-slate-100 hover:bg-slate-200 px-5 py-2.5 text-[13px] font-semibold text-slate-800 transition-colors';
     $warna = [
         'amber'   => ['bg-amber-50 border-amber-200 text-amber-600',     'bg-amber-50 text-amber-700 border-amber-200'],
         'blue'    => ['bg-blue-50 border-blue-200 text-blue-600',         'bg-blue-50 text-blue-700 border-blue-200'],
@@ -91,7 +91,15 @@
 <style>
     @keyframes skIn { from { opacity: 0; transform: translateY(18px); } }
     .sk-in { animation: skIn .7s cubic-bezier(.22, 1, .36, 1) backwards; }
-    @media (prefers-reduced-motion: reduce) { .sk-in { animation: none; } }
+    @keyframes skFill { from { width: 0 !important; } }
+    @keyframes skPing { 0% { transform: scale(1); opacity: .7; } 80%, 100% { transform: scale(1.9); opacity: 0; } }
+    @keyframes skDot { 0%, 100% { transform: scale(1); } 50% { transform: scale(.7); } }
+    @keyframes skShine { from { transform: translateX(-100%); } to { transform: translateX(250%); } }
+    .sk-fill { animation: skFill 1.1s cubic-bezier(.22, 1, .36, 1) .3s backwards; }
+    .sk-fill::after { content: ''; position: absolute; inset: 0; width: 40%; background: linear-gradient(90deg, transparent, rgba(255,255,255,.6), transparent); animation: skShine 2.2s ease-in-out 1.4s infinite; }
+    .sk-ping { animation: skPing 1.8s cubic-bezier(0, 0, .2, 1) infinite; }
+    .sk-dot { animation: skDot 1.8s ease-in-out infinite; }
+    @media (prefers-reduced-motion: reduce) { .sk-in, .sk-fill, .sk-fill::after, .sk-ping, .sk-dot { animation: none; } }
 </style>
 
 <div id="skema-page" class="max-w-[1100px]">
@@ -104,7 +112,7 @@
         <div>
             <div class="flex flex-wrap items-center gap-2">
                 <h1 class="text-2xl font-bold text-slate-900">Daftar Skema Sertifikasi</h1>
-                <span class="px-2.5 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-[11px] font-semibold">{{ $total }} Skema {{ $kodeLsp ?? 'LSP-P1' }}</span>
+                <span class="px-2.5 py-0.5 rounded-full bg-emerald-50 border border-emerald-200 text-emerald-700 text-[11px] font-semibold">{{ $total }} Skema</span>
             </div>
             <p class="mt-1.5 text-sm text-slate-500 max-w-xl leading-relaxed">Kelola pendaftaran skema aktif, pantau progres tahapan sertifikasi, dan jelajahi skema kompetensi BNSP yang tersedia.</p>
         </div>
@@ -115,10 +123,10 @@
 
     {{-- Tab (memenuhi lebar hingga di sebelah "Status Sinkronisasi BNSP") --}}
     <div class="mt-6 flex items-center gap-4 border-b border-slate-200">
-        <div class="flex flex-1 min-w-0 overflow-x-auto" role="tablist">
+        <div class="flex flex-1 min-w-0 overflow-x-auto overflow-y-hidden [scrollbar-width:none] [&::-webkit-scrollbar]:hidden" role="tablist">
             @foreach ([['semua', 'Semua Skema', $total], ['aktif', 'Skema Berjalan', $jumlahAktif . ' Aktif'], ['riwayat', 'Riwayat Selesai', $riwayat->count() . ' Lulus'], ['tersedia', 'Skema Tersedia', $tersedia->count()]] as [$key, $lbl, $cnt])
                 <button type="button" role="tab" data-tab="{{ $key }}" aria-selected="{{ $loop->first ? 'true' : 'false' }}"
-                        class="flex-1 shrink-0 whitespace-nowrap px-3 text-center -mb-px pb-3 border-b-2 border-transparent text-[13px] font-medium text-slate-500 hover:text-slate-800 transition-colors aria-selected:border-[#0b5a49] aria-selected:text-[#0b5a49] aria-selected:font-semibold">
+                        class="cursor-pointer flex-1 shrink-0 whitespace-nowrap px-3 text-center -mb-px pb-3 border-b-2 border-transparent text-[13px] font-medium text-slate-500 hover:text-slate-800 transition-colors aria-selected:border-[#0b5a49] aria-selected:text-[#0b5a49] aria-selected:font-semibold">
                     {{ $lbl }} <span class="ml-1 px-1.5 py-0.5 rounded-md bg-slate-100 text-[10px] text-slate-500">{{ $cnt }}</span>
                 </button>
             @endforeach
@@ -158,7 +166,6 @@
                                     <div class="flex flex-wrap items-center gap-1.5 text-[10px] font-semibold">
                                         <span class="px-2 py-0.5 rounded border border-slate-200 bg-slate-50 text-slate-600">KODE: {{ $skemaAktif->kode }}</span>
                                         <span class="px-2 py-0.5 rounded border {{ $jenisWarna[$jenisAktif] ?? $jenisWarna['Klaster'] }}">{{ $jenisAktif }}</span>
-                                        <span class="px-2 py-0.5 rounded border border-slate-200 bg-slate-50 text-slate-600">{{ $skemaAktif->lsp }}</span>
                                     </div>
                                     <h3 class="mt-2 text-lg font-bold text-slate-900">{{ $skemaAktif->nama }}</h3>
                                     <p class="mt-1 text-xs text-slate-500 leading-relaxed">{{ $skemaAktif->deskripsi }}</p>
@@ -171,28 +178,40 @@
                                 @endforeach
                             </dl>
 
-                            <p class="mt-5 text-[10px] font-bold uppercase tracking-wider text-slate-500">Alur 5 Tahapan Sertifikasi BNSP</p>
+                            <p class="mt-5 text-[10px] font-bold uppercase tracking-wider text-slate-500">Alur 4 Tahapan Sertifikasi BNSP</p>
                             <div class="mt-3 rounded-2xl border border-slate-200 p-4 sm:p-5">
                                 <h4 class="text-sm font-bold text-slate-900">Progres Sertifikasi: {{ $skemaAktif->nama }}</h4>
                                 <p class="text-[11px] text-slate-500 mt-0.5 pb-4 border-b border-slate-100">Alur tahapan resmi sertifikasi BNSP dari pendaftaran hingga lisensi kompetensi</p>
-                                <div class="flex items-start pt-6">
-                                    @foreach ($steps as $i => $s)
-                                        <div class="flex-1 min-w-0 flex flex-col items-center text-center">
-                                            <div class="flex items-center w-full">
-                                                <span class="h-0.5 flex-1 {{ $s['st'] !== 'pending' ? 'bg-[#0b5a49]' : 'bg-slate-200' }}"></span>
-                                                @if ($s['st'] === 'done')
-                                                    <span class="w-9 h-9 shrink-0 rounded-full bg-[#0b5a49] text-white grid place-items-center"><svg class="w-4 h-4" stroke-width="2.4" {!! $a !!}>{!! $ic['check'] !!}</svg></span>
-                                                @elseif ($s['st'] === 'current')
-                                                    <span class="w-9 h-9 shrink-0 rounded-full bg-white border-2 border-[#0b5a49] ring-4 ring-emerald-100 grid place-items-center"><span class="w-2.5 h-2.5 rounded-full bg-[#0b5a49]"></span></span>
-                                                @else
-                                                    <span class="w-8 h-8 shrink-0 rounded-full bg-white border border-slate-200 text-slate-400 text-xs grid place-items-center">@if ($loop->last)<svg class="w-3.5 h-3.5" {!! $a !!}>{!! $ic['award'] !!}</svg>@else{{ $i + 1 }}@endif</span>
-                                                @endif
-                                                <span class="h-0.5 flex-1 {{ $s['st'] === 'done' ? 'bg-[#0b5a49]' : 'bg-slate-200' }}"></span>
-                                            </div>
-                                            <p class="mt-2.5 text-[11px] font-semibold {{ $s['st'] === 'pending' ? 'text-slate-500' : 'text-slate-900' }}">{{ $s['label'] }}</p>
-                                            <p class="text-[10px] {{ $stText[$s['st']] }}">{{ $s['text'] }}</p>
-                                        </div>
-                                    @endforeach
+                                @php
+                                    $jml   = max($steps->count(), 2);
+                                    $sisi  = round(100 / ($jml * 2), 4);                      // jarak garis dari tepi = setengah kolom
+                                    $isi   = min(100, max(0, (min($tahap, $jml) - 1) / ($jml - 1) * 100)); // garis terisi sampai step berjalan
+                                @endphp
+                                <div class="relative pt-6">
+                                    {{-- Garis penghubung: hanya antar titik (tidak keluar dari kartu) --}}
+                                    <div class="absolute top-[calc(1.5rem+1.125rem)] h-1 -translate-y-1/2 rounded-full bg-slate-200 overflow-hidden" style="left: {{ $sisi }}%; right: {{ $sisi }}%">
+                                        <div class="sk-fill relative h-full rounded-full bg-gradient-to-r from-[#0b5a49] to-emerald-500" style="width: {{ $isi }}%"></div>
+                                    </div>
+                                    <ol class="relative grid" style="grid-template-columns: repeat({{ $jml }}, minmax(0, 1fr))">
+                                        @foreach ($steps as $i => $s)
+                                            <li class="flex flex-col items-center text-center px-1" @if ($s['st'] === 'current') aria-current="step" @endif>
+                                                <div class="w-9 h-9 grid place-items-center">
+                                                    @if ($s['st'] === 'done')
+                                                        <span class="w-9 h-9 rounded-full bg-[#0b5a49] text-white grid place-items-center shadow-sm"><svg class="w-4 h-4" stroke-width="2.4" {!! $a !!}>{!! $ic['check'] !!}</svg></span>
+                                                    @elseif ($s['st'] === 'current')
+                                                        <span class="relative w-9 h-9 rounded-full bg-white border-2 border-[#0b5a49] grid place-items-center">
+                                                            <span class="sk-ping absolute inset-0 rounded-full bg-emerald-400/50"></span>
+                                                            <span class="sk-dot relative w-3 h-3 rounded-full bg-[#0b5a49]"></span>
+                                                        </span>
+                                                    @else
+                                                        <span class="w-8 h-8 rounded-full bg-white border border-slate-200 text-slate-400 text-xs grid place-items-center">@if ($loop->last)<svg class="w-3.5 h-3.5" {!! $a !!}>{!! $ic['award'] !!}</svg>@else{{ $i + 1 }}@endif</span>
+                                                    @endif
+                                                </div>
+                                                <p class="mt-2.5 text-[11px] font-semibold leading-tight {{ $s['st'] === 'pending' ? 'text-slate-500' : 'text-slate-900' }}">{{ $s['label'] }}</p>
+                                                <p class="mt-0.5 text-[10px] {{ $stText[$s['st']] }}">{{ $s['text'] }}</p>
+                                            </li>
+                                        @endforeach
+                                    </ol>
                                 </div>
                             </div>
 
@@ -207,7 +226,7 @@
                                 @if (!empty($skemaAktif->url_silabus))
                                     <a href="{{ $skemaAktif->url_silabus }}" target="_blank" rel="noopener" class="{{ $btnS }}"><svg class="w-4 h-4 text-slate-500" {!! $a !!}>{!! $ic['doc'] !!}</svg>Detail Silabus</a>
                                 @else
-                                    <span aria-disabled="true" title="Admin belum melampirkan silabus untuk skema ini" class="{{ $btnS }} opacity-50 cursor-not-allowed hover:!bg-slate-100"><svg class="w-4 h-4 text-slate-500" {!! $a !!}>{!! $ic['doc'] !!}</svg>Detail Silabus</span>
+                                    <span aria-disabled="true" title="Admin belum melampirkan silabus untuk skema ini" class="{{ $btnS }} opacity-50 !cursor-not-allowed hover:!bg-slate-100"><svg class="w-4 h-4 text-slate-500" {!! $a !!}>{!! $ic['doc'] !!}</svg>Detail Silabus</span>
                                 @endif
                                 <div id="kartu-registrasi-src" class="hidden" aria-hidden="true">
                                     @include('asesi.skema._kartu-registrasi', [
@@ -251,7 +270,7 @@
                                     @if ($r->sertifikat_terbit ?? false)
                                         <a href="{{ $r->url_sertifikat ?? (Route::has('asesi.skema.sertifikat') ? route('asesi.skema.sertifikat', ['kode' => $r->kode]) : '#') }}" class="{{ $btnP }}">Unduh Sertifikat (PDF)</a>
                                     @else
-                                        <span aria-disabled="true" title="Tersedia setelah admin menerbitkan sertifikat" class="{{ $btnO }} opacity-60 cursor-not-allowed hover:!bg-white">Menunggu Penerbitan Sertifikat</span>
+                                        <span aria-disabled="true" title="Tersedia setelah admin menerbitkan sertifikat" class="{{ $btnO }} opacity-60 !cursor-not-allowed hover:!bg-white">Menunggu Penerbitan Sertifikat</span>
                                     @endif
                                 </div>
                             </div>

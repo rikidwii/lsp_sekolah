@@ -3,7 +3,8 @@
   KONTRAK DATA (dikirim controller nanti; selama belum ada, dipakai DATA DUMMY):
   $daftarSkema : koleksi/paginator
       kode, nama, tipe (Klaster|Okupasi), durasi (menit), jumlah_unit, kategori, ikon (code|network|tools|store|database),
-      tone (teal|cyan|emerald|blue|slate), status (tersedia|segera), url_detail
+      tone (teal|cyan|emerald|blue|slate), url_detail
+      (kirim HANYA skema yang aktif; skema yang belum hadir tidak ditampilkan)
   $kategori    : array nama kategori untuk filter chip
   $kelasList   : array pilihan Kelas/Jurusan
   $urlSimpan   : URL POST submit (opsional)  | $urlBatal : URL tombol Batal (opsional)
@@ -15,8 +16,11 @@
         (object) ['kode' => 'TIK.TJK.02', 'nama' => 'Teknisi Jaringan Komputer Madya', 'tipe' => 'Okupasi', 'durasi' => 180, 'jumlah_unit' => 8, 'kategori' => 'Teknologi Informasi', 'ikon' => 'network', 'tone' => 'cyan', 'status' => 'tersedia'],
         (object) ['kode' => 'DSN.DKV.03', 'nama' => 'Desain Grafis Komunikasi Visual Utama', 'tipe' => 'Klaster', 'durasi' => 150, 'jumlah_unit' => 12, 'kategori' => 'Desain', 'ikon' => 'tools', 'tone' => 'emerald', 'status' => 'tersedia'],
         (object) ['kode' => 'BSN.RTL.01', 'nama' => 'Pengelolaan Bisnis Ritel Modern', 'tipe' => 'Okupasi', 'durasi' => 90, 'jumlah_unit' => 6, 'kategori' => 'Bisnis', 'ikon' => 'store', 'tone' => 'blue', 'status' => 'tersedia'],
-        (object) ['kode' => 'TIK.DBA.04', 'nama' => 'Administrasi Basis Data Relasional', 'tipe' => 'Klaster', 'durasi' => null, 'jumlah_unit' => null, 'kategori' => 'Teknologi Informasi', 'ikon' => 'database', 'tone' => 'slate', 'status' => 'segera'],
     ]);
+    // Pengaman: bila controller mengirim koleksi biasa, buang skema non-aktif (paginator tidak diubah)
+    if ($daftarSkema instanceof \Illuminate\Support\Collection) {
+        $daftarSkema = $daftarSkema->reject(fn ($x) => in_array($x->status ?? 'tersedia', ['segera', 'nonaktif', 'draft'], true))->values();
+    }
     $kategori ??= collect($daftarSkema)->pluck('kategori')->unique()->values()->all();
     $kelasList ??= ['X RPL', 'XI RPL', 'XII RPL 1', 'XII RPL 2', 'X TKJ', 'XI TKJ', 'XII TKJ', 'X DKV', 'XI DKV', 'XII DKV', 'XII Bisnis Digital'];
     // =======================================================
@@ -141,40 +145,28 @@
 
             <div id="df-grid" class="mt-5 grid grid-cols-1 md:grid-cols-2 gap-4">
                 @foreach ($daftarSkema as $s)
-                    @php $segera = ($s->status ?? 'tersedia') === 'segera'; @endphp
                     <div data-card data-kode="{{ $s->kode }}" data-nama="{{ $s->nama }}" data-tipe="{{ $s->tipe }}" data-kategori="{{ $s->kategori ?? '' }}"
-                         data-selected="false" data-disabled="{{ $segera ? 'true' : 'false' }}"
-                         @unless ($segera) tabindex="0" role="radio" aria-checked="false" @endunless
+                         data-selected="false" tabindex="0" role="radio" aria-checked="false"
                          class="group relative rounded-xl border border-slate-200 bg-white p-4 shadow-[0_1px_2px_rgba(15,23,42,.05)] transition-all duration-300 ease-out
-                                {{ $segera ? 'opacity-60 cursor-not-allowed' : 'cursor-pointer hover:-translate-y-1 hover:shadow-[0_10px_24px_rgba(11,90,73,.14)] hover:border-emerald-300 active:translate-y-0 active:scale-[.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300' }}
+                                cursor-pointer hover:-translate-y-1 hover:shadow-[0_10px_24px_rgba(11,90,73,.14)] hover:border-emerald-300 active:translate-y-0 active:scale-[.99] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-emerald-300
                                 data-[selected=true]:border-[#0b5a49] data-[selected=true]:ring-1 data-[selected=true]:ring-[#0b5a49] data-[selected=true]:bg-emerald-50 data-[selected=true]:shadow-[0_10px_24px_rgba(11,90,73,.16)]">
                         <span data-check aria-hidden="true" class="pointer-events-none absolute -top-2 -left-2 z-10 w-6 h-6 rounded-full bg-[#0b5a49] text-white grid place-items-center shadow opacity-0 scale-0 group-data-[selected=true]:opacity-100 group-data-[selected=true]:scale-100"><svg class="w-3.5 h-3.5" stroke-width="3" {!! $a !!}>{!! $ic['check'] !!}</svg></span>
                         <div class="flex items-start justify-between gap-3">
                             <span class="w-10 h-10 rounded-lg grid place-items-center {{ $tones[$s->tone ?? 'teal'] ?? $tones['teal'] }}"><svg class="w-5 h-5" {!! $a !!}>{!! $ic[$s->ikon ?? 'code'] ?? $ic['code'] !!}</svg></span>
-                            @if ($segera)
-                                <span class="rounded-full bg-slate-100 border border-slate-200 px-2.5 py-0.5 text-[10px] font-semibold text-slate-500">Segera Hadir</span>
-                            @elseif ($s->tipe === 'Okupasi')
+                            @if ($s->tipe === 'Okupasi')
                                 <span class="rounded-full bg-cyan-100 border border-cyan-200 px-2.5 py-0.5 text-[10px] font-semibold text-cyan-800">Okupasi</span>
                             @else
                                 <span class="rounded-full bg-slate-200 px-2.5 py-0.5 text-[10px] font-semibold text-slate-600">Klaster</span>
                             @endif
                         </div>
-                        <h3 class="mt-3 text-[15px] font-semibold leading-snug max-w-[220px] {{ $segera ? 'text-slate-500' : 'text-slate-900' }}">{{ $s->nama }}</h3>
+                        <h3 class="mt-3 text-[15px] font-semibold leading-snug max-w-[220px] text-slate-900">{{ $s->nama }}</h3>
                         <div class="mt-3 flex flex-wrap gap-2 text-[11px] text-slate-600">
-                            @if ($segera)
-                                <span class="inline-flex items-center gap-1 rounded-md bg-slate-100 px-2 py-1 text-slate-400"><svg class="w-3 h-3" {!! $a !!}>{!! $ic['clock'] !!}</svg>TBD</span>
-                            @else
-                                <span class="inline-flex items-center gap-1 rounded-md bg-slate-100 px-2 py-1"><svg class="w-3 h-3" {!! $a !!}>{!! $ic['clock'] !!}</svg>{{ $s->durasi }} Menit</span>
-                                <span class="inline-flex items-center gap-1 rounded-md bg-slate-100 px-2 py-1"><svg class="w-3 h-3" {!! $a !!}>{!! $ic['doc'] !!}</svg>{{ $s->jumlah_unit }} Unit</span>
-                            @endif
+                            <span class="inline-flex items-center gap-1 rounded-md bg-slate-100 px-2 py-1"><svg class="w-3 h-3" {!! $a !!}>{!! $ic['clock'] !!}</svg>{{ $s->durasi }} Menit</span>
+                            <span class="inline-flex items-center gap-1 rounded-md bg-slate-100 px-2 py-1"><svg class="w-3 h-3" {!! $a !!}>{!! $ic['doc'] !!}</svg>{{ $s->jumlah_unit }} Unit</span>
                         </div>
                         <div class="mt-4 pt-3 border-t border-slate-100 flex items-center justify-between">
-                            <span class="font-mono text-[10px] font-bold {{ $segera ? 'text-slate-400' : 'text-[#0b5a49]' }}">{{ $s->kode }}</span>
-                            @if ($segera)
-                                <span class="inline-flex items-center rounded-md bg-slate-100 px-3 py-1.5 text-[11px] font-semibold text-slate-400">Detail</span>
-                            @else
-                                <a href="{{ $s->url_detail ?? route('asesi.skema.detail', ['skema' => $s->kode]) }}" data-detail class="group/d inline-flex items-center gap-1.5 rounded-md bg-indigo-100 hover:bg-[#0b5a49] hover:text-white px-3 py-1.5 text-[11px] font-semibold text-slate-800 transition-colors duration-200">Detail <svg class="w-3 h-3 transition-transform duration-200 group-hover/d:translate-x-0.5" {!! $a !!}>{!! $ic['right'] !!}</svg></a>
-                            @endif
+                            <span class="font-mono text-[10px] font-bold text-[#0b5a49]">{{ $s->kode }}</span>
+                            <a href="{{ $s->url_detail ?? route('asesi.skema.detail', ['skema' => $s->kode]) }}" data-detail class="group/d inline-flex items-center gap-1.5 rounded-md bg-indigo-100 hover:bg-[#0b5a49] hover:text-white px-3 py-1.5 text-[11px] font-semibold text-slate-800 transition-colors duration-200">Detail <svg class="w-3 h-3 transition-transform duration-200 group-hover/d:translate-x-0.5" {!! $a !!}>{!! $ic['right'] !!}</svg></a>
                         </div>
                     </div>
                 @endforeach
@@ -410,7 +402,6 @@
     /* ---------- Langkah 1 : pilih skema, cari, filter ---------- */
     const cards = $$('[data-card]');
     const select = (c) => {
-        if (c.dataset.disabled === 'true') return;
         cards.forEach((x) => { x.dataset.selected = 'false'; x.setAttribute('aria-checked', 'false'); });
         c.dataset.selected = 'true'; c.setAttribute('aria-checked', 'true');
         skema = { kode: c.dataset.kode, nama: c.dataset.nama, tipe: c.dataset.tipe };
